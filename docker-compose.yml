@@ -1,0 +1,19 @@
+version: '3'
+services:
+    database:
+        image: postgres:11.5-alpine
+        environment:
+            POSTGRES_PASSWORD: filesstore
+            POSTGRES_USER: filesstore
+            POSTGRES_DB: filesstore
+        ports:
+            - 5432:5432
+        volumes:
+            - .docker-data/postgresql:/var/lib/postgresql/data
+
+    adminer:
+        image: adminer
+        ports:
+            - 8080:8080
+        depends_on:
+            - database

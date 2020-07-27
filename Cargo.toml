@@ -1,0 +1,46 @@
+[package]
+name = "files-store"
+version = "0.1.0"
+authors = ["Wadjetz <wadjetz@tuta.io>"]
+edition = "2018"
+
+[dependencies]
+# Data types
+chrono = {version = "0.4.13",features = ["serde"]}
+uuid = {version = "0.8.1",features = ["serde","v4"]}
+futures = "0.3.5"
+mime = "0.3.16"
+bytes = "0.5.6"
+
+# Serialisation
+serde = {version = "1.0.114",features = ["derive"]}
+serde_json = "1.0.56"
+
+# Tools
+derive-new = "0.5.8"
+thiserror = "1.0.20"
+async-trait = "0.1.36"
+tokio = "0.2.22"
+jemallocator = "0.3.2"
+async-std = "1.6.2"
+sanitize-filename = "0.2"
+
+# Web
+actix-web = "2.0.0"
+actix-rt = "1.1.1"
+actix-multipart = "0.2.0"
+actix-files = "0.2.2"
+
+# Database
+sqlx = { version = "0.3.5", default-features = false, features = ["runtime-tokio", "postgres", "macros", "uuid", "chrono", "json"] }
+diesel = {version = "1.4.5",features = ["postgres","uuidv07","chrono","serde_json"]}
+diesel_migrations = "1.4.0"
+
+# Crypto
+blake2 = "0.9.0"
+
+# Environement
+dotenv = "0.15.0"
+envy = "0.4.1"
+log = "0.4.11"
+env_logger = "0.7.1"
