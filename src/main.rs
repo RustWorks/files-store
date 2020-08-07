@@ -6,13 +6,14 @@ use actix_web::{middleware, App, HttpServer};
 use dotenv::dotenv;
 
 mod config;
+mod download;
 mod errors;
 mod files_repository;
 mod repository_erros;
+mod sanitize_path;
+mod storage;
 mod upload;
 mod uploaded_file;
-mod storage;
-mod sanitize_path;
 
 use crate::config::Config;
 use crate::storage::LocalStorage;
@@ -40,7 +41,9 @@ async fn main() -> std::io::Result<()> {
         .await
         .expect("creating pool error");
 
-    let local_storage = LocalStorage::new(&config.local_storage_path).await.expect("Local storage path error");
+    let local_storage = LocalStorage::new(&config.local_storage_path)
+        .await
+        .expect("Local storage path error");
 
     HttpServer::new(move || {
         App::new()
@@ -51,6 +54,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Compress::default())
             .wrap(middleware::Logger::default())
             .service(upload::upload)
+            .service(download::download)
     })
     .bind(address)?
     .run()

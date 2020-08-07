@@ -1,11 +1,10 @@
 use async_trait::async_trait;
 use sqlx::postgres::PgQueryAs;
-use sqlx::{query_as, PgConnection};
 use sqlx::FromRow;
+use sqlx::{query_as, PgConnection};
 
 use crate::repository_erros::RepositoryError;
 use crate::uploaded_file::UploadedFile;
-
 
 #[derive(Debug, FromRow)]
 pub struct Count {
@@ -22,6 +21,7 @@ impl Count {
 pub trait FilesStore {
     async fn insert(&mut self, file: &UploadedFile) -> Result<UploadedFile, RepositoryError>;
     async fn exists(&mut self, path: &str) -> Result<bool, RepositoryError>;
+    async fn find_file_by_path(&mut self, path: &str) -> Result<UploadedFile, RepositoryError>;
 }
 
 #[async_trait]
@@ -52,6 +52,15 @@ impl FilesStore for PgConnection {
         .await?;
         Ok(uploaded_file)
     }
+
+    async fn find_file_by_path(&mut self, path: &str) -> Result<UploadedFile, RepositoryError> {
+        let uploaded_file = query_as("SELECT * FROM files WHERE path = $1")
+            .bind(path)
+            .fetch_one(self)
+            .await?;
+        Ok(uploaded_file)
+    }
+
     async fn exists(&mut self, path: &str) -> Result<bool, RepositoryError> {
         let existe: Count = query_as(
             r#"

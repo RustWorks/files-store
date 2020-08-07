@@ -1,9 +1,9 @@
 use chrono::{NaiveDateTime, Utc};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::FromRow;
 use uuid::Uuid;
-use serde_json::Value;
 
 #[derive(Debug, Deserialize, Serialize, new)]
 pub struct UploadFile {
@@ -30,7 +30,15 @@ pub struct UploadedFile {
 }
 
 impl UploadedFile {
-    pub fn new(path: String, name: String, directory: String, storage: String, hash: String, size: i64, content_type: String) -> Self {
+    pub fn new(
+        path: String,
+        name: String,
+        directory: String,
+        storage: String,
+        hash: String,
+        size: i64,
+        content_type: String,
+    ) -> Self {
         Self {
             uuid: Uuid::new_v4(),
             owner: Uuid::new_v4(),
@@ -49,13 +57,13 @@ impl UploadedFile {
 
     pub fn from(upload_file: UploadFile, storage: String, hash: String, size: i64) -> Self {
         Self::new(
-            format!("/{}/{}", upload_file.directory, upload_file.filename),
+            upload_file.path,
             upload_file.filename,
             upload_file.directory,
             storage,
             hash,
             size,
-            upload_file.content_type
+            upload_file.content_type,
         )
     }
 }
