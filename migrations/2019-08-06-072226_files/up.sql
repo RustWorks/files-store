@@ -5,9 +5,12 @@ CREATE TABLE IF NOT EXISTS files (
     owner UUID NOT NULL,
     path TEXT NOT NULL,
     name TEXT NOT NULL,
+    directory TEXT NOT NULL,
+    storage TEXT NOT NULL,
     hash TEXT NOT NULL,
     size BIGINT NOT NULL DEFAULT 0,
     content_type TEXT NOT NULL,
+    metadata JSONB,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );

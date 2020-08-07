@@ -11,8 +11,11 @@ mod files_repository;
 mod repository_erros;
 mod upload;
 mod uploaded_file;
+mod storage;
+mod sanitize_path;
 
 use crate::config::Config;
+use crate::storage::LocalStorage;
 
 embed_migrations!("./migrations");
 
@@ -37,10 +40,13 @@ async fn main() -> std::io::Result<()> {
         .await
         .expect("creating pool error");
 
+    let local_storage = LocalStorage::new(&config.local_storage_path).await.expect("Local storage path error");
+
     HttpServer::new(move || {
         App::new()
             .data(sqlx_pool.clone())
             .data(config.clone())
+            .data(local_storage.clone())
             .wrap(middleware::DefaultHeaders::new().header("X-Version", "0.1.0"))
             .wrap(middleware::Compress::default())
             .wrap(middleware::Logger::default())
