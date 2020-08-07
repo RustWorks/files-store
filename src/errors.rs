@@ -33,7 +33,7 @@ impl ResponseError for ApiError {
             Self::Invalid { message } => HttpResponse::build(http::StatusCode::BAD_REQUEST)
                 .json(json!({ "message": message })),
             Self::Duplicate => HttpResponse::build(http::StatusCode::BAD_REQUEST)
-                .json(json!({ "message": "category.already.exists" })),
+                .json(json!({ "message": "already.exists" })),
             Self::NotFound => HttpResponse::build(http::StatusCode::NOT_FOUND)
                 .json(json!({ "message": "not.found" })),
         }

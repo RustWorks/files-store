@@ -5,9 +5,23 @@ use sqlx::{query_as, PgConnection};
 use crate::repository_erros::RepositoryError;
 use crate::uploaded_file::UploadedFile;
 
+use sqlx::FromRow;
+
+#[derive(Debug, FromRow)]
+pub struct Count {
+    pub count: i64,
+}
+
+impl Count {
+    pub fn is_existe(&self) -> bool {
+        self.count > 0
+    }
+}
+
 #[async_trait]
 pub trait FilesStore {
     async fn insert(&mut self, file: &UploadedFile) -> Result<UploadedFile, RepositoryError>;
+    async fn exists(&mut self, path: &str) -> Result<bool, RepositoryError>;
 }
 
 #[async_trait]
@@ -37,5 +51,18 @@ impl FilesStore for PgConnection {
         .fetch_one(self)
         .await?;
         Ok(uploaded_file)
+    }
+    async fn exists(&mut self, path: &str) -> Result<bool, RepositoryError> {
+        let existe: Count = query_as(
+            r#"
+            SELECT COUNT(*) as count
+            FROM files
+            WHERE path = $1
+            "#,
+        )
+        .bind(path)
+        .fetch_one(self)
+        .await?;
+        Ok(existe.is_existe())
     }
 }
