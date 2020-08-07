@@ -8,6 +8,7 @@ use serde_json::Value;
 #[derive(Debug, Deserialize, Serialize, new)]
 pub struct UploadFile {
     pub path: String,
+    pub directory: String,
     pub filename: String,
     pub content_type: String,
 }
@@ -44,5 +45,17 @@ impl UploadedFile {
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
         }
+    }
+
+    pub fn from(upload_file: UploadFile, storage: String, hash: String, size: i64) -> Self {
+        Self::new(
+            format!("/{}/{}", upload_file.directory, upload_file.filename),
+            upload_file.filename,
+            upload_file.directory,
+            storage,
+            hash,
+            size,
+            upload_file.content_type
+        )
     }
 }

@@ -1,11 +1,11 @@
 use async_trait::async_trait;
 use sqlx::postgres::PgQueryAs;
 use sqlx::{query_as, PgConnection};
+use sqlx::FromRow;
 
 use crate::repository_erros::RepositoryError;
 use crate::uploaded_file::UploadedFile;
 
-use sqlx::FromRow;
 
 #[derive(Debug, FromRow)]
 pub struct Count {

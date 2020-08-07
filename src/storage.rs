@@ -50,7 +50,7 @@ impl Uploader for LocalUploader {
 #[async_trait]
 impl Storage for LocalStorage {
     async fn get_uploader(&self, upload_file: &UploadFile) -> Result<File, ApiError> {
-        let directory_path = format!("{}/{}", self.local_storage_path, upload_file.path);
+        let directory_path = format!("{}/{}", self.local_storage_path, upload_file.directory);
         DirBuilder::new().recursive(true).create(&directory_path).await?;
         let path = format!("{}/{}", directory_path, upload_file.filename);
         let path = async_std::path::Path::new(&path);
