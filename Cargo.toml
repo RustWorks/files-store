@@ -13,7 +13,7 @@ mime = "0.3.16"
 bytes = "0.5.6"
 
 # Serialisation
-serde = {version = "1.0.115",features = ["derive"]}
+serde = {version = "1.0.116",features = ["derive"]}
 serde_json = "1.0.57"
 
 # Tools
@@ -22,14 +22,13 @@ thiserror = "1.0.20"
 async-trait = "0.1.40"
 tokio = {version = "0.2.22",features = ["io-util", "fs", "stream"]}
 jemallocator = "0.3.2"
-async-std = "1.6.3"
+async-std = "1.6.4"
 sanitize-filename = "0.2"
 
 # Web
-actix-web = "2.0.0"
-actix-rt = "1.1.1"
-actix-multipart = "0.2.0"
-actix-files = "0.2.2"
+actix-web = "3.0.2"
+actix-multipart = "0.3.0"
+actix-files = "0.3.0"
 
 # Database
 sqlx = { version = "0.3.5", default-features = false, features = ["runtime-tokio", "postgres", "macros", "uuid", "chrono", "json"] }

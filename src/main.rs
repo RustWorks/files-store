@@ -20,12 +20,12 @@ use crate::storage::LocalStorage;
 
 embed_migrations!("./migrations");
 
-#[actix_rt::main]
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
-    let config = Config::new().expect("Error config");
-    let address = format!("{}:{}", config.host, config.port);
+    let config = Config::new().expect("Config Error");
+    let address = config.address();
 
     let database_url = config.database_url.clone();
     actix_web::web::block(move || {
@@ -56,7 +56,7 @@ async fn main() -> std::io::Result<()> {
             .service(upload::upload)
             .service(download::download)
     })
-    .bind(address)?
+    .bind(&address)?
     .run()
     .await
 }
