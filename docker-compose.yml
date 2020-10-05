@@ -1,7 +1,7 @@
 version: '3'
 services:
     database:
-        image: postgres:11.5-alpine
+        image: postgres:13.0-alpine
         environment:
             POSTGRES_PASSWORD: filesstore
             POSTGRES_USER: filesstore
