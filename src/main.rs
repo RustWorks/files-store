@@ -6,17 +6,15 @@ use actix_web::{middleware, App, HttpServer};
 use dotenv::dotenv;
 
 mod config;
-mod download;
 mod errors;
-mod files_repository;
-mod repository_erros;
-mod sanitize_path;
-mod storage;
-mod upload;
-mod uploaded_file;
+mod repositories;
+mod routes;
+// mod sanitize_path;
+mod auth;
+mod storages;
 
 use crate::config::Config;
-use crate::storage::LocalStorage;
+use crate::storages::LocalStorage;
 
 embed_migrations!("./migrations");
 
@@ -53,8 +51,10 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::DefaultHeaders::new().header("X-Version", "0.1.0"))
             .wrap(middleware::Compress::default())
             .wrap(middleware::Logger::default())
-            .service(upload::upload)
-            .service(download::download)
+            .service(routes::upload::upload)
+            .service(routes::create_directory::create_directory)
+            .service(routes::get_files::get_files)
+            .service(routes::download::download)
     })
     .bind(&address)?
     .run()

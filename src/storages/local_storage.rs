@@ -3,18 +3,7 @@ use async_std::prelude::*;
 use async_trait::async_trait;
 
 use crate::errors::ApiError;
-use crate::uploaded_file::{UploadFile, UploadedFile};
-
-#[async_trait]
-pub trait Storage {
-    async fn get_uploader(&self, file: &UploadFile) -> Result<Box<dyn Uploader>, ApiError>;
-    async fn get_downloader(&self, file: &UploadedFile) -> Result<tokio::fs::File, ApiError>;
-}
-
-#[async_trait]
-pub trait Uploader {
-    async fn write_all<'a>(&'a mut self, buf: &'a [u8]) -> Result<(), ApiError>;
-}
+use crate::storages::{Storage, Uploader};
 
 #[derive(Debug, Clone)]
 pub struct LocalStorage {
@@ -34,16 +23,16 @@ impl LocalStorage {
         }
     }
 
-    async fn create_file(&self, upload_file: &UploadFile) -> Result<File, ApiError> {
-        let directory_path = format!("{}{}", self.local_storage_path, upload_file.directory);
+    async fn create_file(&self, directory: &str, filename: &str) -> Result<File, ApiError> {
+        let directory_path = format!("{}{}", self.local_storage_path, directory);
         DirBuilder::new()
             .recursive(true)
             .create(&directory_path)
             .await?;
-        let path = if upload_file.directory == "/" {
-            format!("{}{}", directory_path, upload_file.filename)
+        let path = if directory == "/" {
+            format!("{}{}", directory_path, filename)
         } else {
-            format!("{}/{}", directory_path, upload_file.filename)
+            format!("{}/{}", directory_path, filename)
         };
         let path = async_std::path::Path::new(&path);
         let file = async_std::fs::File::create(path).await?;
@@ -65,14 +54,18 @@ impl Uploader for LocalUploader {
 
 #[async_trait]
 impl Storage for LocalStorage {
-    async fn get_uploader(&self, upload_file: &UploadFile) -> Result<Box<dyn Uploader>, ApiError> {
-        let file = self.create_file(upload_file).await?;
+    async fn get_uploader(
+        &self,
+        directory: &str,
+        filename: &str,
+    ) -> Result<Box<dyn Uploader>, ApiError> {
+        let file = self.create_file(directory, filename).await?;
         let uploader = LocalUploader { file };
         Ok(Box::new(uploader))
     }
 
-    async fn get_downloader(&self, file: &UploadedFile) -> Result<tokio::fs::File, ApiError> {
-        let path = format!("{}{}", self.local_storage_path, file.path);
+    async fn get_downloader(&self, path: &str) -> Result<tokio::fs::File, ApiError> {
+        let path = format!("{}{}", self.local_storage_path, path);
         let file = tokio::fs::File::open(&path).await?;
         Ok(file)
     }

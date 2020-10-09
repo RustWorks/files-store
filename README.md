@@ -1,1 +1,3 @@
-# files-store
+# Files Store
+
+File storage microsrvice
