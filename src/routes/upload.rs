@@ -5,6 +5,7 @@ use actix_web::{
 };
 use blake2::{Blake2s, Digest};
 use futures::{StreamExt, TryStreamExt};
+use log::debug;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -38,15 +39,21 @@ async fn upload(
         let parent_directory = tx
             .find_fs_node_by_uuid(&parent_uuid, FsNodeType::Directory, &user)
             .await?;
+        debug!("Upload file parent directory: {:?}", &parent_directory);
         let maybe_existing_fs_node = tx
             .find_fs_node_by_name(parent_directory.id, &filename, &user)
             .await?;
+        debug!(
+            "Find fs_node with name={} finded={:?}",
+            &filename, &parent_directory
+        );
         dbg!(&maybe_existing_fs_node);
         if maybe_existing_fs_node.is_none() {
             let ancestors = tx
                 .find_fs_nodes_ancestor_by_id(parent_directory.id, &user)
                 .await?;
             let path = itertools::join(ancestors.into_iter().map(|a| a.name), "/");
+            debug!("uploade file path {}", &path);
 
             let mut uploder = local_storage.get_uploader(&path, &filename).await?;
             let mut size: usize = 0;

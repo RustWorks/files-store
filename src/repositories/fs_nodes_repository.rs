@@ -82,10 +82,16 @@ impl FsNodeStore for PgConnection {
         user: &User,
     ) -> Result<StoredFsNode, RepositoryError> {
         let stored_fs_node = query_as(
-            "SELECT * FROM fs_nodes WHERE parent_id IS NULL AND node_type = $1 AND user_uuid = $2",
+            r#"
+            SELECT fs_nodes.*
+            FROM fs_nodes
+            WHERE parent_id IS NULL
+                AND node_type = $1
+                AND user_uuid = $2
+        "#,
         )
-        .bind(user.uuid)
         .bind(fs_node_type.to_string())
+        .bind(user.uuid)
         .fetch_one(self)
         .await?;
         Ok(stored_fs_node)
@@ -98,7 +104,13 @@ impl FsNodeStore for PgConnection {
         user: &User,
     ) -> Result<StoredFsNode, RepositoryError> {
         let stored_fs_node = query_as(
-            "SELECT * FROM fs_nodes WHERE uuid = $1 AND node_type = $2 AND user_uuid = $3",
+            r#"
+            SELECT fs_nodes.*
+            FROM fs_nodes
+            WHERE uuid = $1
+                AND node_type = $2
+                AND user_uuid = $3
+        "#,
         )
         .bind(uuid)
         .bind(fs_node_type.to_string())
@@ -126,8 +138,8 @@ impl FsNodeStore for PgConnection {
                     ON crumbs.descendant_id = p.descendant_id
             WHERE p.ancestor_id = $1
                 AND d.is_deleted = false
-                -- AND p.depth < 2
-                AND p.depth = 1
+                AND p.depth < 2
+                -- AND p.depth = 1
                 AND user_uuid = $2
             GROUP BY d.id, p.depth
             ORDER BY d.id ASC
@@ -147,7 +159,7 @@ impl FsNodeStore for PgConnection {
     ) -> Result<Vec<StoredFsNode>, RepositoryError> {
         let fs_nodes = query_as(
             r#"
-            SELECT fs_nodes.* --, fs_nodes_tree_paths.*
+            SELECT fs_nodes.*
             FROM fs_nodes
             JOIN fs_nodes_tree_paths ON fs_nodes.id = fs_nodes_tree_paths.ancestor_id
             WHERE fs_nodes_tree_paths.descendant_id = $1

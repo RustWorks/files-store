@@ -4,6 +4,7 @@ extern crate diesel_migrations;
 
 use actix_web::{middleware, App, HttpServer};
 use dotenv::dotenv;
+use log::info;
 
 mod config;
 mod errors;
@@ -24,6 +25,11 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
     let config = Config::new().expect("Config Error");
     let address = config.address();
+
+    info!(
+        "Server at http://{} with local_storage_path={}",
+        &address, &config.local_storage_path
+    );
 
     let database_url = config.database_url.clone();
     actix_web::web::block(move || {
