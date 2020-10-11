@@ -47,18 +47,3 @@ CREATE TRIGGER after_change_fs_node AFTER INSERT OR UPDATE
 
 -- Insert root
 INSERT INTO fs_nodes (uuid, node_type, parent_id, name, metadata, user_uuid) VALUES ('a0d4d0d1-d852-467f-bc43-e5c050659d34', 'directory', NULL, '', '{}'::json, '55e907b7-33ff-4989-a609-0b812c77daf6');
-
-/*
-UPDATE fs_nodes AS d
-SET is_deleted = true
-FROM fs_nodes_tree_paths AS p 
-JOIN fs_nodes_tree_paths AS crumbs ON crumbs.descendant_id = p.descendant_id
-WHERE p.ancestor_id = 3 AND d.id = p.descendant_id;
-*/
-
-/*
-DELETE FROM fs_nodes_tree_paths
-  WHERE descendant_id IN (
-    SELECT descendant_id FROM fs_nodes_tree_paths WHERE ancestor_id = 2
-  )
-*/

@@ -61,6 +61,7 @@ async fn main() -> std::io::Result<()> {
             .service(routes::create_directory::create_directory)
             .service(routes::get_files::get_root_files)
             .service(routes::get_files::get_files)
+            .service(routes::delete_fs_node::delete_fs_node_route)
             .service(routes::download::download)
     })
     .bind(&address)?

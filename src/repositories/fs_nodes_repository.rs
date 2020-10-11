@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use sqlx::postgres::PgQueryAs;
-use sqlx::{query_as, PgConnection};
+use sqlx::{query, query_as, PgConnection};
 use uuid::Uuid;
 
 use crate::auth::User;
@@ -34,6 +34,12 @@ pub trait FsNodeStore {
         user: &User,
     ) -> Result<StoredFsNode, RepositoryError>;
 
+    async fn find_any_fs_node_by_uuid(
+        &mut self,
+        uuid: &Uuid,
+        user: &User,
+    ) -> Result<StoredFsNode, RepositoryError>;
+
     async fn find_fs_nodes_by_parent_id(
         &mut self,
         parent_id: i64,
@@ -45,6 +51,14 @@ pub trait FsNodeStore {
         id: i64,
         user: &User,
     ) -> Result<Vec<StoredFsNode>, RepositoryError>;
+
+    async fn update_deleteed_fs_node(
+        &mut self,
+        id: i64,
+        user: &User,
+    ) -> Result<u64, RepositoryError>;
+
+    async fn delete_fs_node(&mut self, id: i64) -> Result<u64, RepositoryError>;
 }
 
 #[async_trait]
@@ -114,6 +128,25 @@ impl FsNodeStore for PgConnection {
         )
         .bind(uuid)
         .bind(fs_node_type.to_string())
+        .bind(user.uuid)
+        .fetch_one(self)
+        .await?;
+        Ok(stored_fs_node)
+    }
+    async fn find_any_fs_node_by_uuid(
+        &mut self,
+        uuid: &Uuid,
+        user: &User,
+    ) -> Result<StoredFsNode, RepositoryError> {
+        let stored_fs_node = query_as(
+            r#"
+            SELECT fs_nodes.*
+            FROM fs_nodes
+            WHERE uuid = $1
+                AND user_uuid = $2
+        "#,
+        )
+        .bind(uuid)
         .bind(user.uuid)
         .fetch_one(self)
         .await?;
@@ -202,5 +235,46 @@ impl FsNodeStore for PgConnection {
         .fetch_optional(self)
         .await?;
         Ok(fs_node)
+    }
+
+    async fn update_deleteed_fs_node(
+        &mut self,
+        id: i64,
+        user: &User,
+    ) -> Result<u64, RepositoryError> {
+        let updated = query(
+            r#"
+            UPDATE fs_nodes AS d
+            SET is_deleted = true
+            FROM fs_nodes_tree_paths AS p 
+                JOIN fs_nodes_tree_paths AS crumbs
+                    ON crumbs.descendant_id = p.descendant_id
+            WHERE p.ancestor_id = $1
+                AND d.id = p.descendant_id
+                AND d.user_uuid = $2
+        "#,
+        )
+        .bind(id)
+        .bind(user.uuid)
+        .execute(self)
+        .await?;
+        Ok(updated)
+    }
+
+    async fn delete_fs_node(&mut self, id: i64) -> Result<u64, RepositoryError> {
+        let deleted = query(
+            r#"
+            DELETE FROM fs_nodes_tree_paths
+            WHERE descendant_id IN (
+                SELECT descendant_id
+                FROM fs_nodes_tree_paths
+                WHERE ancestor_id = $1
+            )
+        "#,
+        )
+        .bind(id)
+        .execute(self)
+        .await?;
+        Ok(deleted)
     }
 }
