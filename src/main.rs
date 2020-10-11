@@ -5,7 +5,6 @@ extern crate diesel_migrations;
 use actix_web::{middleware, App, HttpServer};
 use dotenv::dotenv;
 use tracing::info;
-use tracing_subscriber;
 
 mod config;
 mod errors;
