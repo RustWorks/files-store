@@ -2,9 +2,9 @@ use actix_web::{
     delete,
     web::{Data, HttpResponse, Path},
 };
-use log::debug;
 use serde_json::json;
 use sqlx::PgPool;
+use tracing::debug;
 use uuid::Uuid;
 
 use crate::auth::User;

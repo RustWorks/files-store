@@ -6,20 +6,20 @@ edition = "2018"
 
 [dependencies]
 # Data types
-chrono = {version = "0.4.19",features = ["serde"]}
-uuid = {version = "0.8.1",features = ["serde","v4"]}
+chrono = { version = "0.4.19", features = ["serde"] }
+uuid = { version = "0.8.1", features = ["serde","v4"] }
 futures = "0.3.6"
 mime = "0.3.16"
 bytes = "0.5.6"
 
 # Serialisation
-serde = {version = "1.0.116",features = ["derive"]}
+serde = { version = "1.0.116", features = ["derive"] }
 serde_json = "1.0.58"
 
 # Tools
 thiserror = "1.0.21"
 async-trait = "0.1.41"
-tokio = {version = "0.2.22",features = ["io-util", "fs", "stream"]}
+tokio = { version = "0.2.22", features = ["io-util", "fs", "stream"] }
 jemallocator = "0.3.2"
 async-std = "1.6.5"
 sanitize-filename = "0.2"
@@ -32,7 +32,7 @@ actix-files = "0.4.0"
 
 # Database
 sqlx = { version = "0.3.5", default-features = false, features = ["runtime-tokio", "postgres", "macros", "uuid", "chrono", "json"] }
-diesel = {version = "1.4.5",features = ["postgres"]}
+diesel = { version = "1.4.5", features = ["postgres"] }
 diesel_migrations = "1.4.0"
 
 # Crypto
@@ -41,5 +41,5 @@ blake2 = "0.9.0"
 # Environement
 dotenv = "0.15.0"
 envy = "0.4.1"
-log = "0.4.11"
-env_logger = "0.7.1"
+tracing = "0.1.21"
+tracing-subscriber = "0.2.13"

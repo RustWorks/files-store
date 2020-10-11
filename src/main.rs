@@ -4,7 +4,8 @@ extern crate diesel_migrations;
 
 use actix_web::{middleware, App, HttpServer};
 use dotenv::dotenv;
-use log::info;
+use tracing::info;
+use tracing_subscriber;
 
 mod config;
 mod errors;
@@ -22,7 +23,7 @@ embed_migrations!("./migrations");
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
-    env_logger::init();
+    tracing_subscriber::fmt::init();
     let config = Config::new().expect("Config Error");
     let address = config.address();
 

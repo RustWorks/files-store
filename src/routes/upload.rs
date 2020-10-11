@@ -5,8 +5,8 @@ use actix_web::{
 };
 use blake2::{Blake2s, Digest};
 use futures::{StreamExt, TryStreamExt};
-use log::debug;
 use sqlx::PgPool;
+use tracing::debug;
 use uuid::Uuid;
 
 use crate::auth::User;
