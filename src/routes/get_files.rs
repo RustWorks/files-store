@@ -28,3 +28,19 @@ async fn get_files(
         .collect::<Vec<FsNode>>();
     Ok(HttpResponse::Ok().json(fs_nodes))
 }
+
+#[get("/api/files")]
+async fn get_root_files(pool: Data<PgPool>, user: User) -> Result<HttpResponse, ApiError> {
+    let mut connection = pool.acquire().await?;
+    let parent_directory = connection
+        .find_root_fs_node(FsNodeType::Directory, &user)
+        .await?;
+    let fs_nodes = connection
+        .find_fs_nodes_by_parent_id(parent_directory.id, &user)
+        .await?;
+    let fs_nodes = fs_nodes
+        .into_iter()
+        .map(FsNode::from)
+        .collect::<Vec<FsNode>>();
+    Ok(HttpResponse::Ok().json(fs_nodes))
+}

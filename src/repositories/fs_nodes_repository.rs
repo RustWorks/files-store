@@ -23,8 +23,8 @@ pub trait FsNodeStore {
 
     async fn find_root_fs_node(
         &mut self,
-        user: &User,
         fs_node_type: FsNodeType,
+        user: &User,
     ) -> Result<StoredFsNode, RepositoryError>;
 
     async fn find_fs_node_by_uuid(
@@ -78,8 +78,8 @@ impl FsNodeStore for PgConnection {
 
     async fn find_root_fs_node(
         &mut self,
-        user: &User,
         fs_node_type: FsNodeType,
+        user: &User,
     ) -> Result<StoredFsNode, RepositoryError> {
         let stored_fs_node = query_as(
             "SELECT * FROM fs_nodes WHERE parent_id IS NULL AND node_type = $1 AND user_uuid = $2",

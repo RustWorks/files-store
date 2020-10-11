@@ -9,7 +9,7 @@ services:
         ports:
             - 5432:5432
         volumes:
-            - .docker-data/postgresql:/var/lib/postgresql/data
+            - .data/postgresql/data:/var/lib/postgresql/data
 
     adminer:
         image: adminer

@@ -53,6 +53,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .service(routes::upload::upload)
             .service(routes::create_directory::create_directory)
+            .service(routes::get_files::get_root_files)
             .service(routes::get_files::get_files)
             .service(routes::download::download)
     })

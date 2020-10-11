@@ -2,4 +2,4 @@
 **/*.rs.bk
 upload
 .env
-.docker-data
+.data
