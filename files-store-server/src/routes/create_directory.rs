@@ -29,7 +29,7 @@ async fn create_directory(
             tx.find_fs_node_by_uuid(parent_uuid, FsNodeType::Directory, &user)
                 .await?
         }
-        None => tx.find_root_fs_node(FsNodeType::Directory, &user).await?,
+        None => tx.find_root_fs_node(FsNodeType::Root, &user).await?,
     };
     dbg!(&parent_directory);
     let uuid = Uuid::new_v4();

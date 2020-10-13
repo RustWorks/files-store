@@ -13,9 +13,10 @@ use crate::repositories::{FsNodeStore, FsNodeType, StoredFsNode};
 fn can_move(sourcet_fs_node: &StoredFsNode, destination_fs_node: &StoredFsNode) -> bool {
     match (sourcet_fs_node.node_type(), destination_fs_node.node_type()) {
         (FsNodeType::Directory, FsNodeType::Directory) => true,
-        (FsNodeType::Directory, FsNodeType::File) => false,
+        (FsNodeType::Directory, FsNodeType::Root) => true,
         (FsNodeType::File, FsNodeType::Directory) => true,
-        (FsNodeType::File, FsNodeType::File) => false,
+        (FsNodeType::File, FsNodeType::Root) => true,
+        _ => false,
     }
 }
 

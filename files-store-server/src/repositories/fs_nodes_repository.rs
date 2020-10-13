@@ -138,7 +138,7 @@ impl FsNodeStore for PgConnection {
             SELECT fs_nodes.*
             FROM fs_nodes
             WHERE uuid = $1
-                AND node_type = $2
+                AND (node_type = $2 OR node_type = 'root')
                 AND user_uuid = $3
         "#,
         )

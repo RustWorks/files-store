@@ -46,4 +46,4 @@ CREATE TRIGGER after_change_fs_node AFTER INSERT OR UPDATE
   ON fs_nodes FOR EACH ROW EXECUTE PROCEDURE after_change_fs_node();
 
 -- Insert root
-INSERT INTO fs_nodes (uuid, node_type, parent_id, name, metadata, user_uuid) VALUES ('a0d4d0d1-d852-467f-bc43-e5c050659d34', 'directory', NULL, '', '{}'::json, '55e907b7-33ff-4989-a609-0b812c77daf6');
+INSERT INTO fs_nodes (uuid, node_type, parent_id, name, metadata, user_uuid) VALUES ('a0d4d0d1-d852-467f-bc43-e5c050659d34', 'root', NULL, '', '{}'::json, '55e907b7-33ff-4989-a609-0b812c77daf6');

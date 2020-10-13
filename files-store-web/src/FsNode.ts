@@ -1,4 +1,4 @@
-export type FsNodeType = "directory" | "file"
+export type FsNodeType = "directory" | "file" | "root"
 
 export type FileMetadata = {
   content_type: string,

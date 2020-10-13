@@ -9,6 +9,7 @@ use uuid::Uuid;
 pub enum FsNodeType {
     File,
     Directory,
+    Root,
 }
 
 impl Display for FsNodeType {
@@ -16,6 +17,7 @@ impl Display for FsNodeType {
         match self {
             FsNodeType::File => write!(f, "file"),
             FsNodeType::Directory => write!(f, "directory"),
+            FsNodeType::Root => write!(f, "root"),
         }
     }
 }
@@ -26,6 +28,7 @@ impl FsNodeType {
         match text {
             "file" => FsNodeType::File,
             "directory" => FsNodeType::Directory,
+            "root" => FsNodeType::Root,
             _ => panic!("FsNodeType parsing error: {}", text), //TODO find a better solution
         }
     }
