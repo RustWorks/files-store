@@ -36,6 +36,7 @@ async fn upload(
         let filename = get_filename(&field).ok_or(ApiError::Invalid {
             message: "should content a filename".to_string(),
         })?;
+        let file_uuid = Uuid::new_v4();
         let parent_directory = tx
             .find_fs_node_by_uuid(&parent_uuid, FsNodeType::Directory, &user)
             .await?;
@@ -55,7 +56,7 @@ async fn upload(
             let path = itertools::join(ancestors.into_iter().map(|a| a.name), "/");
             debug!("uploade file path {}", &path);
 
-            let mut uploder = local_storage.get_uploader(&path, &filename).await?;
+            let mut uploder = local_storage.get_uploader(&file_uuid, &user.uuid).await?;
             let mut size: usize = 0;
             let mut hasher = Blake2s::new();
             while let Some(chunk) = field.next().await {
@@ -69,6 +70,7 @@ async fn upload(
             let file_fs_node_metadata = FileFsNodeMetaData::new(hash, content_type, size as i64);
             let file_fs_node_metadata = serde_json::to_value(file_fs_node_metadata).unwrap(); // TODO handle serde_json::Error
             let create_stored_fs_node = CreateStoredFsNode::new(
+                file_uuid,
                 parent_directory.id,
                 FsNodeType::File,
                 filename,

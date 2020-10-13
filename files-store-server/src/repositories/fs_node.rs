@@ -5,7 +5,7 @@ use sqlx::FromRow;
 use std::fmt::Display;
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum FsNodeType {
     File,
     Directory,
@@ -26,7 +26,7 @@ impl FsNodeType {
         match text {
             "file" => FsNodeType::File,
             "directory" => FsNodeType::Directory,
-            _ => panic!("FsNodeType parsing error: {}", text),
+            _ => panic!("FsNodeType parsing error: {}", text), //TODO find a better solution
         }
     }
 }
@@ -43,6 +43,12 @@ pub struct StoredFsNode {
     pub user_uuid: Uuid,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+}
+
+impl StoredFsNode {
+    pub fn node_type(&self) -> FsNodeType {
+        FsNodeType::parse(&self.node_type)
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -72,6 +78,7 @@ impl From<StoredFsNode> for FsNode {
 
 #[derive(Debug)]
 pub struct CreateStoredFsNode {
+    pub uuid: Uuid,
     pub parent_id: i64,
     pub node_type: FsNodeType,
     pub name: String,
@@ -79,8 +86,15 @@ pub struct CreateStoredFsNode {
 }
 
 impl CreateStoredFsNode {
-    pub fn new(parent_id: i64, node_type: FsNodeType, name: String, metadata: Value) -> Self {
+    pub fn new(
+        uuid: Uuid,
+        parent_id: i64,
+        node_type: FsNodeType,
+        name: String,
+        metadata: Value,
+    ) -> Self {
         Self {
+            uuid,
             parent_id,
             node_type,
             name,

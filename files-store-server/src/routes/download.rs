@@ -22,12 +22,7 @@ async fn download(
     let fs_node = connection
         .find_fs_node_by_uuid(&file_uuid, FsNodeType::File, &user)
         .await?;
-    let ancestors = connection
-        .find_fs_nodes_ancestor_by_id(fs_node.id, &user)
-        .await?;
-    let path = itertools::join(ancestors.into_iter().map(|a| a.name), "/");
-    dbg!(&path);
-    let file = local_storage.get_downloader(&path).await?;
+    let file = local_storage.get_file(&fs_node.uuid, &user.uuid).await?;
     let named_file = NamedFile::from_file(file.into_std().await, &fs_node.name)?;
     Ok(named_file)
 }

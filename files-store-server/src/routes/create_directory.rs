@@ -32,10 +32,11 @@ async fn create_directory(
         None => tx.find_root_fs_node(FsNodeType::Directory, &user).await?,
     };
     dbg!(&parent_directory);
+    let uuid = Uuid::new_v4();
     let parent_id = parent_directory.id;
     let name = payload.name.clone();
     let create_stored_fs_node =
-        CreateStoredFsNode::new(parent_id, FsNodeType::Directory, name, json!({}));
+        CreateStoredFsNode::new(uuid, parent_id, FsNodeType::Directory, name, json!({}));
     dbg!(&create_stored_fs_node);
     let directory: FsNode = tx.insert(&create_stored_fs_node, &user).await?.into();
     tx.commit().await?;

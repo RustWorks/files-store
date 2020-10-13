@@ -2,6 +2,7 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
+use actix_cors::Cors;
 use actix_web::{middleware, App, HttpServer};
 use dotenv::dotenv;
 use tracing::info;
@@ -57,11 +58,13 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::DefaultHeaders::new().header("X-Version", "0.1.0"))
             .wrap(middleware::Compress::default())
             .wrap(middleware::Logger::default())
+            .wrap(Cors::new().send_wildcard().finish())
             .service(routes::upload::upload)
             .service(routes::create_directory::create_directory)
             .service(routes::get_files::get_root_files)
             .service(routes::get_files::get_files)
             .service(routes::delete_fs_node::delete_fs_node_route)
+            .service(routes::move_fs_node::move_fs_node_route)
             .service(routes::download::download)
     })
     .bind(&address)?

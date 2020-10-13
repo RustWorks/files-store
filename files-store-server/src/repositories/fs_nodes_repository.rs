@@ -59,6 +59,20 @@ pub trait FsNodeStore {
     ) -> Result<u64, RepositoryError>;
 
     async fn delete_fs_node(&mut self, id: i64) -> Result<u64, RepositoryError>;
+
+    async fn move_fs_node_update_parent_id(
+        &mut self,
+        src: i64,
+        dest: i64,
+    ) -> Result<u64, RepositoryError>;
+
+    async fn move_fs_node_disconnect(&mut self, src: i64) -> Result<u64, RepositoryError>;
+
+    async fn move_fs_node_update_ancestors(
+        &mut self,
+        src: i64,
+        dest: i64,
+    ) -> Result<u64, RepositoryError>;
 }
 
 #[async_trait]
@@ -71,15 +85,17 @@ impl FsNodeStore for PgConnection {
         let stored_fs_node = query_as(
             r#"
             INSERT INTO fs_nodes (
+                uuid,
                 node_type,
                 parent_id,
                 name,
                 metadata,
                 user_uuid
             )
-            VALUES ($1, $2, $3, $4, $5) RETURNING *
+            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *
             "#,
         )
+        .bind(create_stored_fs_node.uuid)
         .bind(&create_stored_fs_node.node_type.to_string())
         .bind(create_stored_fs_node.parent_id)
         .bind(&create_stored_fs_node.name)
@@ -276,5 +292,67 @@ impl FsNodeStore for PgConnection {
         .execute(self)
         .await?;
         Ok(deleted)
+    }
+
+    async fn move_fs_node_update_parent_id(
+        &mut self,
+        src: i64,
+        dest: i64,
+    ) -> Result<u64, RepositoryError> {
+        let updated = query(
+            r#"
+            UPDATE fs_nodes SET parent_id = $2 WHERE id = $1
+        "#,
+        )
+        .bind(src)
+        .bind(dest)
+        .execute(self)
+        .await?;
+        Ok(updated)
+    }
+
+    async fn move_fs_node_disconnect(&mut self, src: i64) -> Result<u64, RepositoryError> {
+        let updated = query(
+            r#"
+            DELETE FROM fs_nodes_tree_paths
+            WHERE descendant_id IN (
+                SELECT descendant_id
+                FROM fs_nodes_tree_paths
+                WHERE ancestor_id = $1
+            )
+            AND ancestor_id IN (
+                SELECT ancestor_id
+                FROM fs_nodes_tree_paths
+                WHERE descendant_id = $1
+                    AND ancestor_id != descendant_id
+            )
+        "#,
+        )
+        .bind(src)
+        .execute(self)
+        .await?;
+        Ok(updated)
+    }
+
+    async fn move_fs_node_update_ancestors(
+        &mut self,
+        src: i64,
+        dest: i64,
+    ) -> Result<u64, RepositoryError> {
+        let updated = query(
+            r#"
+            INSERT INTO fs_nodes_tree_paths (ancestor_id, descendant_id, depth)
+            SELECT supertree.ancestor_id, subtree.descendant_id, supertree.depth + subtree.depth + 1
+            FROM fs_nodes_tree_paths AS supertree
+            CROSS JOIN fs_nodes_tree_paths AS subtree
+            WHERE supertree.descendant_id = $2
+            AND subtree.ancestor_id = $1
+        "#,
+        )
+        .bind(src)
+        .bind(dest)
+        .execute(self)
+        .await?;
+        Ok(updated)
     }
 }
