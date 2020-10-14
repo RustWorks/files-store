@@ -19,6 +19,8 @@ pub enum ApiError {
     IO(#[from] std::io::Error),
     #[error("sqlx")]
     Sqlx(#[from] sqlx::Error),
+    #[error("serde_json")]
+    SerdeJson(#[from] serde_json::Error),
     #[error("repository")]
     Repository(#[from] RepositoryError),
 }
@@ -37,10 +39,12 @@ impl ResponseError for ApiError {
                 HttpResponse::build(http::StatusCode::NOT_FOUND)
                     .json(json!({ "message": "not.found" }))
             }
-            Self::InternalServer | Self::IO(_) | Self::Sqlx(_) | Self::Repository(_) => {
-                HttpResponse::build(http::StatusCode::INTERNAL_SERVER_ERROR)
-                    .json(json!({ "message": "technical.error" }))
-            }
+            Self::InternalServer
+            | Self::IO(_)
+            | Self::Sqlx(_)
+            | Self::Repository(_)
+            | Self::SerdeJson(_) => HttpResponse::build(http::StatusCode::INTERNAL_SERVER_ERROR)
+                .json(json!({ "message": "technical.error" })),
         }
     }
 }

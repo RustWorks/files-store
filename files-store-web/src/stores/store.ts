@@ -13,7 +13,7 @@ function createFsNodesStore() {
       set(fsNodes)
       return fsNodes
     },
-    add: (fsNode: FsNode) => update(files => [...files, fsNode])
+    add: (fsNode: FsNode[]) => update(files => files.concat(fsNode))
   }
 }
 

@@ -23,3 +23,10 @@ export interface FsNodesResponse {
   childrens: FsNode[]
   ancestors: FsNode[]
 }
+
+export interface UploadError {
+  error_message: string
+  filename: string
+}
+
+export type UploadResult = UploadError | FsNode

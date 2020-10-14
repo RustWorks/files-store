@@ -1,4 +1,4 @@
-import type { FsNodesResponse, FsNode } from "./FsNode"
+import type { FsNodesResponse, FsNode, UploadResult } from "./FsNode"
 
 const baseUrl = "http://localhost:2000"
 
@@ -7,7 +7,7 @@ export function getFiles(uuid?: string): Promise<FsNodesResponse> {
   return fetch(`${baseUrl}/${path}`).then(response => response.json())
 }
 
-export function upload(uuid: string, formData: FormData): Promise<FsNode> {
+export function upload(uuid: string, formData: FormData): Promise<UploadResult[]> {
   return fetch(`${baseUrl}/api/files/upload/${uuid}`, {
     method: "POST",
     body: formData

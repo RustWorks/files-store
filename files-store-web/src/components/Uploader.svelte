@@ -1,22 +1,32 @@
 <script lang="typescript">
-  import type { FsNode } from "../FsNode"
+  import type { FsNode, UploadResult } from "../FsNode"
   import { upload } from "../FileStoreApi"
 
   import { fsNodesStore } from "../stores/store"
 
   export let parent: FsNode
   export let label: string | undefined = "Upload"
-  let files
+  let files: FileList
+
+  export function isFsNode(value: UploadResult): value is FsNode {
+    return !!(value as FsNode).uuid
+  }
 
   function uploadFile() {
     const formData = new FormData()
-    formData.append("file", files[0])
-    upload(parent.uuid, formData).then(fsNodesStore.add).catch(console.error)
+    for (var i = 0; i < files.length; i++) {
+      formData.append(`file-${i}`, files[i])
+    }
+    upload(parent.uuid, formData)
+      .then(uploaded => {
+        fsNodesStore.add(uploaded.filter(isFsNode))
+      })
+      .catch(console.error)
   }
 </script>
 
 <div class="uploader">
-  <input type="file" bind:files on:change="{uploadFile}" />
+  <input type="file" multiple bind:files on:change="{uploadFile}" />
   <label for="upload-input">{label}</label>
 </div>
 

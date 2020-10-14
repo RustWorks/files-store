@@ -9,8 +9,7 @@
     if (name !== "") {
       createDirectory(parentUuid, name)
         .then(dir => {
-          console.log(dir)
-          fsNodesStore.add(dir)
+          fsNodesStore.add([dir])
           wantCreateDirectory.update(() => false)
         })
         .catch(console.error)

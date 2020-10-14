@@ -5,6 +5,8 @@ use actix_web::{
 };
 use blake2::{Blake2s, Digest};
 use futures::{StreamExt, TryStreamExt};
+use serde::Serialize;
+use serde_json::Value;
 use sqlx::PgPool;
 use tracing::debug;
 use uuid::Uuid;
@@ -23,6 +25,21 @@ fn get_filename(field: &Field) -> Option<String> {
     Some(filename)
 }
 
+#[derive(Debug, Serialize)]
+struct UploadError {
+    pub filename: String,
+    pub error_message: String,
+}
+
+impl UploadError {
+    pub fn new(filename: String, error: ApiError) -> Self {
+        Self {
+            filename,
+            error_message: error.to_string(),
+        }
+    }
+}
+
 #[post("/api/files/upload/{parent_uuid}")]
 async fn upload(
     mut multipart: Multipart,
@@ -32,7 +49,8 @@ async fn upload(
     user: User,
 ) -> Result<HttpResponse, ApiError> {
     let mut tx = pool.begin().await?;
-    let uploaded_file: FsNode = if let Ok(Some(mut field)) = multipart.try_next().await {
+    let mut uploaded_files: Vec<Value> = vec![];
+    while let Ok(Some(mut field)) = multipart.try_next().await {
         let filename = get_filename(&field).ok_or(ApiError::Invalid {
             message: "should content a filename".to_string(),
         })?;
@@ -77,15 +95,15 @@ async fn upload(
                 file_fs_node_metadata,
             );
             let stored_fs_node = tx.insert(&create_stored_fs_node, &user).await?;
-            Ok(stored_fs_node.into())
+            let fs_node: FsNode = stored_fs_node.into();
+            uploaded_files.push(serde_json::to_value(fs_node)?);
         } else {
-            Err(ApiError::Duplicate)
+            uploaded_files.push(serde_json::to_value(UploadError::new(
+                filename,
+                ApiError::Duplicate,
+            ))?);
         }
-    } else {
-        Err(ApiError::Invalid {
-            message: "Should have a file".to_string(),
-        })
-    }?;
+    }
     tx.commit().await?;
-    Ok(HttpResponse::Ok().json(uploaded_file))
+    Ok(HttpResponse::Ok().json(uploaded_files))
 }
