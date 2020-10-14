@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use crate::auth::User;
 use crate::errors::ApiError;
-use crate::repositories::{FsNode, FsNodeStore, FsNodeType};
+use crate::repositories::{FsNodeStore, FsNodeType, FsNodesRespose};
 
 #[get("/api/files/{parent_uuid}")]
 async fn get_files(
@@ -19,14 +19,14 @@ async fn get_files(
     let parent_directory = connection
         .find_fs_node_by_uuid(&parent_uuid, FsNodeType::Directory, &user)
         .await?;
+    let ancestors = connection
+        .find_fs_nodes_ancestor_by_id(parent_directory.id, &user)
+        .await?;
     let fs_nodes = connection
         .find_fs_nodes_by_parent_id(parent_directory.id, &user)
         .await?;
-    let fs_nodes = fs_nodes
-        .into_iter()
-        .map(FsNode::from)
-        .collect::<Vec<FsNode>>();
-    Ok(HttpResponse::Ok().json(fs_nodes))
+    let response = FsNodesRespose::new(parent_directory, fs_nodes, ancestors);
+    Ok(HttpResponse::Ok().json(response))
 }
 
 #[get("/api/files")]
@@ -38,9 +38,7 @@ async fn get_root_files(pool: Data<PgPool>, user: User) -> Result<HttpResponse, 
     let fs_nodes = connection
         .find_fs_nodes_by_parent_id(parent_directory.id, &user)
         .await?;
-    let fs_nodes = fs_nodes
-        .into_iter()
-        .map(FsNode::from)
-        .collect::<Vec<FsNode>>();
-    Ok(HttpResponse::Ok().json(fs_nodes))
+    let ancestors = vec![parent_directory.clone()];
+    let response = FsNodesRespose::new(parent_directory, fs_nodes, ancestors);
+    Ok(HttpResponse::Ok().json(response))
 }

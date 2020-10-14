@@ -1,6 +1,10 @@
-name: Checking
+name: Server Checking
 
-on: [push]
+on:
+  push:
+    paths:
+      - 'files-store-server/**'
+      - 'Cargo.*'
 
 env:
   CARGO_TERM_COLOR: always

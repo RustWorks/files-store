@@ -1,0 +1,29 @@
+name: Web checking
+
+on:
+  push:
+    paths:
+      - 'files-store-web/**'
+
+jobs:
+  build:
+    name: Checking web client
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.OS }}-node-${{ hashFiles('files-store-web/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-node-
+            ${{ runner.OS }}-
+      - name: Checking web client
+        working-directory: ./files-store-web
+        run: |
+          npm ci
+          npm run format-check
+          npm run check

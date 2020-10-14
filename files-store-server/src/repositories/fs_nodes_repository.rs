@@ -187,8 +187,8 @@ impl FsNodeStore for PgConnection {
                     ON crumbs.descendant_id = p.descendant_id
             WHERE p.ancestor_id = $1
                 AND d.is_deleted = false
-                AND p.depth < 2
-                -- AND p.depth = 1
+                -- AND p.depth < 2
+                AND p.depth = 1
                 AND user_uuid = $2
             GROUP BY d.id, p.depth
             ORDER BY d.id ASC

@@ -34,7 +34,7 @@ impl FsNodeType {
     }
 }
 
-#[derive(Debug, FromRow)]
+#[derive(Debug, Clone, FromRow)]
 pub struct StoredFsNode {
     pub id: i64,
     pub uuid: Uuid,
@@ -119,6 +119,30 @@ impl FileFsNodeMetaData {
             hash,
             content_type,
             size,
+        }
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct FsNodesRespose {
+    parent: FsNode,
+    childrens: Vec<FsNode>,
+    ancestors: Vec<FsNode>,
+}
+
+impl FsNodesRespose {
+    pub fn new(
+        parent: StoredFsNode,
+        childrens: Vec<StoredFsNode>,
+        ancestors: Vec<StoredFsNode>,
+    ) -> Self {
+        let childrens = childrens.into_iter().map(FsNode::from).collect();
+        let ancestors = ancestors.into_iter().map(FsNode::from).collect();
+        let parent = parent.into();
+        Self {
+            parent,
+            childrens,
+            ancestors,
         }
     }
 }
