@@ -177,9 +177,6 @@ impl FsNodeStore for PgConnection {
         let fs_nodes = query_as(
             r#"
             SELECT d.*
-                -- concat(repeat('-', p.depth), d.name) AS tree,
-                -- p.depth,
-                -- array_to_string(array_agg(crumbs.ancestor_id::CHARACTER VARYING ORDER BY crumbs.ancestor_id),'/','*') breadcrumbs
             FROM fs_nodes AS d
                 JOIN fs_nodes_tree_paths AS p
                     ON d.id = p.descendant_id
@@ -187,11 +184,10 @@ impl FsNodeStore for PgConnection {
                     ON crumbs.descendant_id = p.descendant_id
             WHERE p.ancestor_id = $1
                 AND d.is_deleted = false
-                -- AND p.depth < 2
                 AND p.depth = 1
                 AND user_uuid = $2
             GROUP BY d.id, p.depth
-            ORDER BY d.id ASC
+            ORDER BY node_type ASC, name ASC
             "#,
         )
         .bind(parent_id)

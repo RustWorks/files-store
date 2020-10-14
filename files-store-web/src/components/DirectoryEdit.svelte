@@ -8,8 +8,8 @@
   function handleBlur() {
     if (name !== "") {
       createDirectory(parentUuid, name)
-        .then(dir => {
-          fsNodesStore.add([dir])
+        .then(directory => {
+          fsNodesStore.addDirectory(directory)
           wantCreateDirectory.update(() => false)
         })
         .catch(console.error)
