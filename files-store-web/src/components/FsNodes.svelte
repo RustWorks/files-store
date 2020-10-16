@@ -3,7 +3,7 @@
   import type { FsNode as Node } from "../FsNode"
   import FsNode from "../components/FsNode.svelte"
   import DirectoryEdit from "../components/DirectoryEdit.svelte"
-  import { fsNodesStore, wantCreateDirectory } from "../stores/store"
+  import { fsNodesStore, wantCreateDirectory, selectedFsNode } from "../stores/store"
 
   let fsNodes: Node[]
 
@@ -21,6 +21,8 @@
 
 <style>
   .fs-nodes {
+    flex: 1;
+    overflow-y: auto;
     border-top: 1px solid var(--border);
   }
 </style>

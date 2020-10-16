@@ -12,7 +12,10 @@
           fsNodesStore.addDirectory(directory)
           wantCreateDirectory.update(() => false)
         })
-        .catch(console.error)
+        .catch(error => {
+          console.error(error)
+          wantCreateDirectory.update(() => false)
+        })
     } else {
       wantCreateDirectory.update(() => false)
     }
@@ -21,23 +24,24 @@
 
 <div class="fs-node">
   <div class="icon">
-    <DirectoryIcon />
+    <DirectoryIcon size="{30}" />
   </div>
-  <input on:blur="{handleBlur}" type="text" bind:value="{name}" />
+  <input autofocus on:blur="{handleBlur}" type="text" bind:value="{name}" />
 </div>
 
 <style>
   .fs-node {
     display: flex;
     align-items: center;
-    padding: 15px;
     border-bottom: 1px solid var(--border);
+    padding-left: 3px;
+    border-left: 3px solid var(--background);
   }
 
   .icon {
-    width: 30px;
-    margin-right: 15px;
-    margin-top: 2px;
+    width: 57px;
+    height: 60px;
+    padding: 15px 15px 15px 12px;
   }
 
   input {

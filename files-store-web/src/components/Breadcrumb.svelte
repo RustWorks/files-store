@@ -9,7 +9,7 @@
   {#each ancestors as ancestor (ancestor.uuid)}
     {#if ancestor.node_type === 'root'}
       <a href="#/">
-        <HomeIcon width="{30}" />
+        <HomeIcon size="{30}" />
       </a>
     {:else}
       <div class="separaton">/</div>

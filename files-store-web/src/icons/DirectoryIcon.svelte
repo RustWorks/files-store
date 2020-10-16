@@ -1,12 +1,13 @@
 <script lang="typescript">
-  export let width: number = 30
-  export let height: number
+  export let size: number = 30
+  export let color: string = "#3DC7BE"
 </script>
 
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 31 24" width="{width}" height="{height}">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="{size}" width="{size}">
   <path
-    fill="#3DC7BE"
-    stroke="#3DC7BE"
-    d="M13 3.00001L11.2929 1.2929c-.1875-.18754-.4416-.29289-.7068-.29289L2 .999996C1.44772.999998 1 1.44771 1 2v19c0 1.1046.89543 2 2 2h25c1.1046 0 2-.8954 2-2V5.00001c0-1.10457-.8954-2-2-2H13z"
+    xmlns="http://www.w3.org/2000/svg"
+    fill-rule="evenodd"
+    d="M2 6C2 4.89543 2.89543 4 4 4H9C9.26522 4 9.51957 4.10536 9.70711 4.29289L11.4142 6H20C21.1046 6 22 6.89543 22 8V18C22 19.1046 21.1046 20 20 20H4C2.89543 20 2 19.1046 2 18V6ZM8.58579 6L4 6V18H20V8H11C10.7348 8 10.4804 7.89464 10.2929 7.70711L8.58579 6Z"
+    fill="{color}"
   ></path>
 </svg>

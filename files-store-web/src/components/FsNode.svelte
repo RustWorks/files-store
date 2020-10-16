@@ -1,15 +1,67 @@
 <script lang="typescript">
   import type { FsNode } from "../FsNode"
-  import FileNode from "./FileNode.svelte"
-  import DirectoryNode from "./DirectoryNode.svelte"
-
+  import DirectoryIcon from "../icons/DirectoryIcon.svelte"
+  import FileIcon from "../icons/FileIcon.svelte"
+  import { selectedFsNode } from "../stores/store"
   export let fsNode: FsNode
+  let selected: boolean = false
+  selectedFsNode.subscribe(nodes => {
+    selected = !!nodes.find(n => n.uuid === fsNode.uuid)
+  })
 </script>
 
-{#if fsNode.node_type === 'file'}
-  <FileNode fsNode="{fsNode}" />
-{:else if fsNode.node_type === 'directory'}
-  <DirectoryNode fsNode="{fsNode}" />
-{:else}
-  <p>{fsNode.node_type}</p>
-{/if}
+<div class="fs-node">
+  <div class="icon" class:selected on:click="{() => selectedFsNode.toggle(fsNode)}">
+    {#if fsNode.node_type === 'directory'}
+      <DirectoryIcon size="{30}" />
+    {:else}
+      <FileIcon size="{30}" />
+    {/if}
+  </div>
+  {#if fsNode.node_type === 'directory'}
+    <a class="name directory-name" href="#/directory/{fsNode.uuid}">{fsNode.name}</a>
+  {:else}
+    <div class="name">{fsNode.name}</div>
+  {/if}
+</div>
+
+<style>
+  .fs-node {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .icon {
+    width: 57px;
+    height: 60px;
+    padding: 15px 15px 15px 11px;
+    cursor: pointer;
+    border-left: 4px solid var(--background);
+  }
+
+  .icon:hover {
+    background-color: #dadada2c;
+    border-left: 4px solid #dadada2c;
+  }
+
+  .selected {
+    border-left: 4px solid var(--primary);
+  }
+
+  .selected:hover {
+    border-left: 4px solid var(--primary);
+  }
+
+  .name {
+    padding-right: 15px;
+    text-decoration: none;
+    color: var(--primary-text);
+    word-break: break-all;
+    overflow: hidden;
+  }
+
+  .directory-name:hover {
+    text-decoration: underline;
+  }
+</style>

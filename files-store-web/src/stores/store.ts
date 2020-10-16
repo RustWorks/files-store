@@ -4,6 +4,26 @@ import type { FsNode } from "../FsNode"
 
 export const wantCreateDirectory = writable(false)
 
+function createSelectedFsNode() {
+  const { subscribe, update } = writable<FsNode[]>([])
+  return {
+    subscribe,
+    toggle: (fsNode: FsNode) => {
+      update(nodes => {
+        const finded = nodes.find(n => n.uuid === fsNode.uuid)
+        if (finded) {
+          return nodes.filter(n => n.uuid !== fsNode.uuid)
+        } else {
+          return [...nodes, fsNode]
+        }
+      })
+    },
+    close: () => update(() => [])
+  }
+}
+
+export const selectedFsNode = createSelectedFsNode()
+
 function createFsNodesStore() {
   const { subscribe, set, update } = writable<FsNode[]>([])
 
