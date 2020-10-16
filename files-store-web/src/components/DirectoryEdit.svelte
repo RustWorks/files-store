@@ -34,14 +34,13 @@
     display: flex;
     align-items: center;
     border-bottom: 1px solid var(--border);
-    padding-left: 3px;
-    border-left: 3px solid var(--background);
   }
 
   .icon {
     width: 57px;
     height: 60px;
-    padding: 15px 15px 15px 12px;
+    padding: 15px 15px 15px 11px;
+    border-left: 4px solid var(--background);
   }
 
   input {

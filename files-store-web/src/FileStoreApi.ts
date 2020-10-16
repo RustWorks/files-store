@@ -2,6 +2,10 @@ import type { FsNodesResponse, FsNode, UploadResult } from "./FsNode"
 
 const baseUrl = "http://localhost:2000"
 
+export function getDownloadUri(uuid: string): string {
+  return `${baseUrl}/api/files/download/${uuid}`
+}
+
 export function getFiles(uuid?: string): Promise<FsNodesResponse> {
   const path = uuid ? `api/files/${uuid}` : "api/files"
   return fetch(`${baseUrl}/${path}`).then(response => response.json())

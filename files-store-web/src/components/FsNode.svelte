@@ -1,5 +1,6 @@
 <script lang="typescript">
   import type { FsNode } from "../FsNode"
+  import { getDownloadUri } from "../FileStoreApi"
   import DirectoryIcon from "../icons/DirectoryIcon.svelte"
   import FileIcon from "../icons/FileIcon.svelte"
   import { selectedFsNode } from "../stores/store"
@@ -8,6 +9,8 @@
   selectedFsNode.subscribe(nodes => {
     selected = !!nodes.find(n => n.uuid === fsNode.uuid)
   })
+
+  let href = fsNode.node_type === "directory" ? `#/directory/${fsNode.uuid}` : getDownloadUri(fsNode.uuid)
 </script>
 
 <div class="fs-node">
@@ -18,11 +21,7 @@
       <FileIcon size="{30}" />
     {/if}
   </div>
-  {#if fsNode.node_type === 'directory'}
-    <a class="name directory-name" href="#/directory/{fsNode.uuid}">{fsNode.name}</a>
-  {:else}
-    <div class="name">{fsNode.name}</div>
-  {/if}
+  <a class="name" href="{href}">{fsNode.name}</a>
 </div>
 
 <style>
@@ -61,7 +60,7 @@
     overflow: hidden;
   }
 
-  .directory-name:hover {
+  .name:hover {
     text-decoration: underline;
   }
 </style>
