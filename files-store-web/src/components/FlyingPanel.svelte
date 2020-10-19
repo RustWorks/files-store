@@ -1,9 +1,10 @@
 <script lang="typescript">
-  import { fly } from "svelte/transition"
-  import { quintOut } from "svelte/easing"
+  // import { fly } from "svelte/transition"
+  // import { quintOut } from "svelte/easing"
 </script>
 
-<div class="flaying-panel" transition:fly="{{ duration: 200, y: 200, easing: quintOut }}">
+<!-- <div class="flaying-panel" transition:fly="{{ duration: 200, y: 200, easing: quintOut }}" /> -->
+<div class="flaying-panel">
   <slot />
 </div>
 
