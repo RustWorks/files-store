@@ -45,6 +45,11 @@
     overflow: hidden;
     margin-right: 10px;
   }
+
+  .uploader:hover {
+    opacity: 0.8;
+  }
+
   input {
     position: absolute;
     opacity: 0;

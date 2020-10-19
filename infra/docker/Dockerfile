@@ -6,6 +6,6 @@ COPY files-store-server /files-store/files-store-server
 
 WORKDIR /
 
-EXPOSE 2000
+EXPOSE 4200
 
 CMD /files-store/files-store-server

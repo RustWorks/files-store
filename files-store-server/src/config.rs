@@ -17,7 +17,7 @@ impl Config {
     pub fn address(&self) -> String {
         let default_host = "0.0.0.0".to_owned();
         let host = self.host.as_ref().unwrap_or(&default_host);
-        let port = self.port.unwrap_or(2000);
+        let port = self.port.unwrap_or(4200);
         format!("{}:{}", host, port)
     }
 }

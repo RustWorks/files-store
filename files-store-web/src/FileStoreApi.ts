@@ -1,6 +1,6 @@
 import type { FsNodesResponse, FsNode, UploadResult } from "./FsNode"
 
-const baseUrl = "http://localhost:2000"
+const baseUrl = "http://localhost:4200"
 
 export function getDownloadUri(uuid: string): string {
   return `${baseUrl}/api/files/download/${uuid}`

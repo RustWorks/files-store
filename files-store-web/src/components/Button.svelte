@@ -24,4 +24,8 @@
     border-radius: 3px;
     text-align: center;
   }
+
+  button:hover {
+    opacity: 0.8;
+  }
 </style>
