@@ -15,16 +15,9 @@
     fsNodesStore.set(response.childrens)
     return response
   })
-
-  function handleHashChange() {
-    console.log("handleHashChange")
-    selectedFsNode.close()
-  }
-
-  $: console.log($selectedFsNode)
 </script>
 
-<svelte:window on:hashchange="{handleHashChange}" />
+<svelte:window on:hashchange="{() => selectedFsNode.close()}" />
 
 <main class="main">
   {#await filesResponse}
