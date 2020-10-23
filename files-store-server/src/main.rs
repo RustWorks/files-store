@@ -58,12 +58,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::DefaultHeaders::new().header("X-Version", "0.1.0"))
             .wrap(middleware::Compress::default())
             .wrap(middleware::Logger::default())
-            .wrap(
-                Cors::default()
-                    .allow_any_origin()
-                    .allow_any_method()
-                    .allow_any_header(),
-            )
+            .wrap(Cors::permissive())
             .service(routes::upload::upload)
             .service(routes::create_directory::create_directory)
             .service(routes::get_files::get_root_files)

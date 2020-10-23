@@ -1,7 +1,8 @@
 use actix_web::{
     put,
-    web::{Data, HttpResponse, Path},
+    web::{Data, HttpResponse, Json},
 };
+use serde::Deserialize;
 use sqlx::PgPool;
 use tracing::debug;
 use uuid::Uuid;
@@ -20,22 +21,26 @@ fn can_move(sourcet_fs_node: &StoredFsNode, destination_fs_node: &StoredFsNode) 
     }
 }
 
-#[put("/api/files/{source_uuid}/{destination_uuid}")]
+#[derive(Debug, Deserialize)]
+struct MoveFsNodeQuery {
+    source_uuid: Uuid,
+    destination_uuid: Uuid,
+}
+
+#[put("/api/files")]
 async fn move_fs_node_route(
     pool: Data<PgPool>,
-    uuids: Path<(Uuid, Uuid)>,
+    query: Json<MoveFsNodeQuery>,
     user: User,
 ) -> Result<HttpResponse, ApiError> {
     let mut connection = pool.begin().await?;
 
-    let (source_uuid, destination_uuid) = uuids.into_inner();
-
     let sourcet_fs_node = connection
-        .find_any_fs_node_by_uuid(&source_uuid, &user)
+        .find_any_fs_node_by_uuid(&query.source_uuid, &user)
         .await?;
 
     let destination_fs_node = connection
-        .find_any_fs_node_by_uuid(&destination_uuid, &user)
+        .find_any_fs_node_by_uuid(&query.destination_uuid, &user)
         .await?;
 
     debug!(
