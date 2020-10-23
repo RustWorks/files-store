@@ -1,8 +1,15 @@
 <script lang="typescript">
+  import LoaderIcon from "../icons/LoaderIcon.svelte"
+
   export let label: string
+  export let loading: boolean = false
 </script>
 
-<button on:click>{label}</button>
+<button on:click>
+  {#if loading}
+    <LoaderIcon size="{30}" />
+  {:else}{label}{/if}
+</button>
 
 <style>
   button {

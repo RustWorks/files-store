@@ -3,6 +3,7 @@ import { writable } from "svelte/store"
 import type { FsNode } from "../FsNode"
 
 export const wantCreateDirectory = writable(false)
+export const wantMoveFsNode = writable<FsNode | undefined>(undefined)
 
 function createSelectedFsNode() {
   const { subscribe, update } = writable<FsNode[]>([])
@@ -33,6 +34,7 @@ function createFsNodesStore() {
       set(fsNodes)
       return fsNodes
     },
+    move: (fsNode: FsNode, _: FsNode) => update(files => files.filter(f => f.uuid !== fsNode.uuid)),
     addDirectory: (fsNode: FsNode) => update(files => [fsNode, ...files]),
     add: (fsNode: FsNode[]) => update(files => files.concat(fsNode))
   }

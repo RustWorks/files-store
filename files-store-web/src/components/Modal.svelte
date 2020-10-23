@@ -1,39 +1,17 @@
-<script>
-  import { createEventDispatcher, onDestroy } from "svelte"
+<script lang="typescript">
+  import { createEventDispatcher } from "svelte"
+  import IconButton from "./IconButton.svelte"
+  import CloseIcon from "../icons/CloseIcon.svelte"
+
+  export let title: string
 
   const dispatch = createEventDispatcher()
   const close = () => dispatch("close")
 
-  let modal
-
-  const handle_keydown = e => {
+  const handle_keydown = (e: KeyboardEvent) => {
     if (e.key === "Escape") {
       close()
-      return
     }
-
-    if (e.key === "Tab") {
-      // trap focus
-      const nodes = modal.querySelectorAll("*")
-      const tabbable = Array.from(nodes).filter(n => n.tabIndex >= 0)
-
-      let index = tabbable.indexOf(document.activeElement)
-      if (index === -1 && e.shiftKey) index = 0
-
-      index += tabbable.length + (e.shiftKey ? -1 : 1)
-      index %= tabbable.length
-
-      tabbable[index].focus()
-      e.preventDefault()
-    }
-  }
-
-  const previously_focused = typeof document !== "undefined" && document.activeElement
-
-  if (previously_focused) {
-    onDestroy(() => {
-      previously_focused.focus()
-    })
   }
 </script>
 
@@ -41,14 +19,14 @@
 
 <div class="modal-background" on:click="{close}"></div>
 
-<div class="modal" role="dialog" aria-modal="true" bind:this="{modal}">
-  <slot name="header" />
-  <hr />
+<div class="modal" role="dialog" aria-modal="true">
+  <div class="header">
+    <h2 class="title">{title}</h2>
+    <IconButton on:click="{close}">
+      <CloseIcon size="{25}" />
+    </IconButton>
+  </div>
   <slot />
-  <hr />
-
-  <!-- svelte-ignore a11y-autofocus -->
-  <button autofocus on:click="{close}">close modal</button>
 </div>
 
 <style>
@@ -67,15 +45,26 @@
     top: 50%;
     width: calc(100vw - 4em);
     max-width: 32em;
+    min-height: 300px;
     max-height: calc(100vh - 4em);
-    overflow: auto;
     transform: translate(-50%, -50%);
-    padding: 1em;
     border-radius: 0.2em;
     background: white;
   }
 
-  button {
-    display: block;
+  .header {
+    padding: 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .title {
+    font-size: 1rem;
+    margin: 0;
+    padding: 0;
+    word-break: break-all;
+    overflow: hidden;
   }
 </style>

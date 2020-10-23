@@ -1,10 +1,9 @@
 <script lang="typescript">
-  export let width: number = 24
-  export let height: number = 24
+  export let size: number = 24
   export let color: string = "#000000"
 </script>
 
-<svg width="{width}" height="{height}" viewBox="0 0 40 40" enable-background="new 0 0 40 40">
+<svg width="{size}" height="{size}" viewBox="0 0 40 40" enable-background="new 0 0 40 40">
   <path
     opacity="0.2"
     fill="{color}"

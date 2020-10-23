@@ -26,6 +26,7 @@
   <div class="icon">
     <DirectoryIcon size="{30}" />
   </div>
+  <!-- svelte-ignore a11y-autofocus -->
   <input autofocus on:blur="{handleBlur}" type="text" bind:value="{name}" />
 </div>
 

@@ -27,3 +27,13 @@ export function createDirectory(parent_uuid: string, name: string): Promise<FsNo
     body: JSON.stringify({ parent_uuid, name })
   }).then(response => response.json())
 }
+
+export function moveFsNode(source_uuid: string, destination_uuid: string) {
+  return fetch(`${baseUrl}/api/files`, {
+    method: "PUT",
+    headers: {
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({ source_uuid, destination_uuid })
+  })
+}

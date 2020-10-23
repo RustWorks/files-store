@@ -40,12 +40,13 @@
   }
 
   .icon:hover {
-    background-color: #dadada2c;
+    background-color: rgba(151, 151, 151, 0.1);
     border-left: 4px solid #dadada2c;
   }
 
   .selected {
     border-left: 4px solid var(--primary);
+    background-color: rgba(201, 201, 201, 0.1);
   }
 
   .selected:hover {

@@ -8,8 +8,10 @@
   import Button from "../components/Button.svelte"
   import FlyingPanel from "../components/FlyingPanel.svelte"
   import FsNodeSelection from "../components/FsNodeSelection.svelte"
+  import Modal from "../components/Modal.svelte"
+  import MoveFsNodeModal from "../components/MoveFsNodeModal.svelte"
 
-  import { fsNodesStore, wantCreateDirectory, selectedFsNode } from "../stores/store"
+  import { fsNodesStore, wantCreateDirectory, selectedFsNode, wantMoveFsNode } from "../stores/store"
 
   $: filesResponse = getFiles($route.params.id).then(response => {
     fsNodesStore.set(response.childrens)
@@ -21,20 +23,23 @@
 
 <main class="main">
   {#await filesResponse}
-    <LoaderIcon width="{40}" height="{40}" />
+    <LoaderIcon size="{40}" />
   {:then files}
-    <div class="tools">
+    <header class="header">
       <Breadcrumb ancestors="{files.ancestors}" />
       <div class="actions">
         <Uploader parent="{files.parent}" label="Upload" />
         <Button label="Create Directory" on:click="{() => wantCreateDirectory.update(v => !v)}" />
       </div>
-    </div>
+    </header>
     <FsNodes parentUuid="{files.parent.uuid}" />
-    {#if $selectedFsNode.length > 0}
-      <FlyingPanel>
-        <FsNodeSelection />
-      </FlyingPanel>
+    <FlyingPanel selected="{$selectedFsNode.length > 0}" on:click="{() => selectedFsNode.close()}">
+      <FsNodeSelection parent="{files.parent}" />
+    </FlyingPanel>
+    {#if $wantMoveFsNode}
+      <Modal title="{`Move ${$wantMoveFsNode?.name}`}" on:close="{() => wantMoveFsNode.set(undefined)}">
+        <MoveFsNodeModal parent="{files.parent}" fsNode="{$wantMoveFsNode || files.parent}" />
+      </Modal>
     {/if}
   {:catch error}
     <p style="color: red">{error.message}</p>
@@ -44,13 +49,28 @@
 <style>
   .main {
     height: 100vh;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: 60px auto;
+    grid-template-columns: auto;
+    grid-template-areas:
+      "header"
+      "content"
+      "side-panel";
   }
-  .tools {
+  @media screen and (min-width: 700px) {
+    .main {
+      grid-template-rows: 60px auto;
+      grid-template-columns: auto 300px;
+      grid-template-areas:
+        "header header"
+        "content side-panel";
+    }
+  }
+  .header {
+    grid-area: header;
     display: flex;
     justify-content: space-between;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
   .actions {
     display: flex;
