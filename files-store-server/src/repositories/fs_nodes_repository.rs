@@ -1,6 +1,5 @@
 use async_trait::async_trait;
-use sqlx::postgres::PgQueryAs;
-use sqlx::{query, query_as, PgConnection};
+use sqlx::{query, query_as, types::Json, Done, PgConnection};
 use uuid::Uuid;
 
 use crate::auth::User;
@@ -10,7 +9,7 @@ use crate::repositories::{CreateStoredFsNode, FsNodeType, RepositoryError, Store
 pub trait FsNodeStore {
     async fn insert(
         &mut self,
-        create_stored_fs_node: &CreateStoredFsNode,
+        create_stored_fs_node: CreateStoredFsNode,
         user: &User,
     ) -> Result<StoredFsNode, RepositoryError>;
 
@@ -79,7 +78,7 @@ pub trait FsNodeStore {
 impl FsNodeStore for PgConnection {
     async fn insert(
         &mut self,
-        create_stored_fs_node: &CreateStoredFsNode,
+        create_stored_fs_node: CreateStoredFsNode,
         user: &User,
     ) -> Result<StoredFsNode, RepositoryError> {
         let stored_fs_node = query_as(
@@ -99,7 +98,7 @@ impl FsNodeStore for PgConnection {
         .bind(&create_stored_fs_node.node_type.to_string())
         .bind(create_stored_fs_node.parent_id)
         .bind(&create_stored_fs_node.name)
-        .bind(&create_stored_fs_node.metadata)
+        .bind(Json(create_stored_fs_node.metadata))
         .bind(user.uuid)
         .fetch_one(self)
         .await?;
@@ -270,7 +269,7 @@ impl FsNodeStore for PgConnection {
         .bind(user.uuid)
         .execute(self)
         .await?;
-        Ok(updated)
+        Ok(updated.rows_affected())
     }
 
     async fn delete_fs_node(&mut self, id: i64) -> Result<u64, RepositoryError> {
@@ -287,7 +286,7 @@ impl FsNodeStore for PgConnection {
         .bind(id)
         .execute(self)
         .await?;
-        Ok(deleted)
+        Ok(deleted.rows_affected())
     }
 
     async fn move_fs_node_update_parent_id(
@@ -304,7 +303,7 @@ impl FsNodeStore for PgConnection {
         .bind(dest)
         .execute(self)
         .await?;
-        Ok(updated)
+        Ok(updated.rows_affected())
     }
 
     async fn move_fs_node_disconnect(&mut self, src: i64) -> Result<u64, RepositoryError> {
@@ -327,7 +326,7 @@ impl FsNodeStore for PgConnection {
         .bind(src)
         .execute(self)
         .await?;
-        Ok(updated)
+        Ok(updated.rows_affected())
     }
 
     async fn move_fs_node_update_ancestors(
@@ -349,6 +348,6 @@ impl FsNodeStore for PgConnection {
         .bind(dest)
         .execute(self)
         .await?;
-        Ok(updated)
+        Ok(updated.rows_affected())
     }
 }

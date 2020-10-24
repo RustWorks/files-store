@@ -3,13 +3,12 @@ use actix_web::{
     web::{Data, HttpResponse, Json},
 };
 use serde::Deserialize;
-use serde_json::json;
 use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::auth::User;
 use crate::errors::ApiError;
-use crate::repositories::{CreateStoredFsNode, FsNode, FsNodeStore, FsNodeType};
+use crate::repositories::{CreateStoredFsNode, FsNode, FsNodeMetadata, FsNodeStore, FsNodeType};
 
 #[derive(Debug, Deserialize)]
 struct CreateDirectoryQuery {
@@ -31,14 +30,17 @@ async fn create_directory(
         }
         None => tx.find_root_fs_node(FsNodeType::Root, &user).await?,
     };
-    dbg!(&parent_directory);
     let uuid = Uuid::new_v4();
     let parent_id = parent_directory.id;
     let name = payload.name.clone();
-    let create_stored_fs_node =
-        CreateStoredFsNode::new(uuid, parent_id, FsNodeType::Directory, name, json!({}));
-    dbg!(&create_stored_fs_node);
-    let directory: FsNode = tx.insert(&create_stored_fs_node, &user).await?.into();
+    let create_stored_fs_node = CreateStoredFsNode::new(
+        uuid,
+        parent_id,
+        FsNodeType::Directory,
+        name,
+        FsNodeMetadata::Directory,
+    );
+    let directory: FsNode = tx.insert(create_stored_fs_node, &user).await?.into();
     tx.commit().await?;
     Ok(HttpResponse::Ok().json(directory))
 }

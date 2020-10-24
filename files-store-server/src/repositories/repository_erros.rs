@@ -1,5 +1,7 @@
+use std::borrow::Cow;
 use thiserror::Error;
 
+#[allow(dead_code)]
 #[derive(Debug, Error)]
 pub enum RepositoryError {
     #[error("already exist")]
@@ -12,9 +14,10 @@ pub enum RepositoryError {
 
 impl From<sqlx::Error> for RepositoryError {
     fn from(error: sqlx::Error) -> Self {
+        tracing::error!("Repository error {:#?}", &error);
         match &error {
             sqlx::Error::RowNotFound => Self::NotFound,
-            sqlx::Error::Database(e) if e.code() == Some("23505") => Self::Duplicate,
+            sqlx::Error::Database(e) if e.code() == Some(Cow::from("23505")) => Self::Duplicate,
             _ => Self::Database(error),
         }
     }

@@ -13,9 +13,7 @@ use uuid::Uuid;
 
 use crate::auth::User;
 use crate::errors::ApiError;
-use crate::repositories::{
-    CreateStoredFsNode, FileFsNodeMetaData, FsNode, FsNodeStore, FsNodeType,
-};
+use crate::repositories::{CreateStoredFsNode, FsNode, FsNodeMetadata, FsNodeStore, FsNodeType};
 use crate::storages::{LocalStorage, Storage};
 
 fn get_filename(field: &Field) -> Option<String> {
@@ -85,8 +83,7 @@ async fn upload(
             }
             let hash = format!("{:02x}", hasher.finalize());
             let content_type = field.content_type().to_string();
-            let file_fs_node_metadata = FileFsNodeMetaData::new(hash, content_type, size as i64);
-            let file_fs_node_metadata = serde_json::to_value(file_fs_node_metadata).unwrap(); // TODO handle serde_json::Error
+            let file_fs_node_metadata = FsNodeMetadata::new_file(hash, content_type, size as i64);
             let create_stored_fs_node = CreateStoredFsNode::new(
                 file_uuid,
                 parent_directory.id,
@@ -94,7 +91,7 @@ async fn upload(
                 filename,
                 file_fs_node_metadata,
             );
-            let stored_fs_node = tx.insert(&create_stored_fs_node, &user).await?;
+            let stored_fs_node = tx.insert(create_stored_fs_node, &user).await?;
             let fs_node: FsNode = stored_fs_node.into();
             uploaded_files.push(serde_json::to_value(fs_node)?);
         } else {

@@ -42,7 +42,7 @@ async fn main() -> std::io::Result<()> {
     .await
     .expect("Migration error");
 
-    let sqlx_pool = sqlx::PgPool::new(&config.database_url)
+    let sqlx_pool = sqlx::PgPool::connect(&config.database_url)
         .await
         .expect("creating pool error");
 
