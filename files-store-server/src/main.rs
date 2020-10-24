@@ -7,12 +7,11 @@ use actix_web::{middleware, App, HttpServer};
 use dotenv::dotenv;
 use tracing::info;
 
+mod auth;
 mod config;
 mod errors;
 mod repositories;
 mod routes;
-// mod sanitize_path;
-mod auth;
 mod storages;
 
 use crate::config::Config;
