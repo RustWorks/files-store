@@ -1,6 +1,6 @@
 <script lang="typescript">
   import type { FsNode } from "../FsNode"
-  import { getDownloadUri } from "../FileStoreApi"
+  import { getDownloadUri, getThumbnailUri } from "../FileStoreApi"
   import DirectoryIcon from "../icons/DirectoryIcon.svelte"
   import FileIcon from "../icons/FileIcon.svelte"
   import { selectedFsNode } from "../stores/store"
@@ -17,6 +17,8 @@
   <div class="icon" class:selected on:click="{() => selectedFsNode.toggle(fsNode)}">
     {#if fsNode.node_type === 'directory'}
       <DirectoryIcon size="{30}" />
+    {:else if fsNode.node_type === 'file' && fsNode.metadata.type === 'File' && fsNode.metadata.content_type === 'image/jpeg'}
+      <img class="thumbnail" src="{getThumbnailUri(fsNode.uuid)}" alt="thumbnail" />
     {:else}
       <FileIcon size="{30}" />
     {/if}
@@ -31,10 +33,19 @@
     border-bottom: 1px solid var(--border);
   }
 
+  .thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
   .icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 57px;
     height: 60px;
-    padding: 15px 15px 15px 11px;
+    padding: 10px 10px 10px 8px;
     cursor: pointer;
     border-left: 4px solid var(--background);
   }

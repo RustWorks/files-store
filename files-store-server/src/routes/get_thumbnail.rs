@@ -11,8 +11,8 @@ use crate::errors::ApiError;
 use crate::repositories::{FsNodeStore, FsNodeType};
 use crate::storages::{LocalStorage, Storage};
 
-#[get("/api/files/download/{file_uuid}")]
-async fn download(
+#[get("/api/files/thumbnail/{file_uuid}")]
+async fn get_thumbnail_route(
     pool: Data<PgPool>,
     local_storage: Data<LocalStorage>,
     file_uuid: Path<Uuid>,
@@ -22,7 +22,11 @@ async fn download(
     let fs_node = connection
         .find_fs_node_by_uuid(&file_uuid, FsNodeType::File, &user.uuid)
         .await?;
-    let file = local_storage.get_file(&fs_node.uuid, &user.uuid).await?;
+    let thumbnail = connection
+        .find_fs_node_thumbnail_by_uuid(fs_node.id, &user.uuid)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+    let file = local_storage.get_file(&thumbnail.uuid, &user.uuid).await?;
     let named_file = NamedFile::from_file(file.into_std().await, &fs_node.name)?;
     Ok(named_file)
 }

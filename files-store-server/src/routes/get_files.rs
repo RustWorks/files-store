@@ -17,7 +17,7 @@ async fn get_files(
 ) -> Result<HttpResponse, ApiError> {
     let mut connection = pool.acquire().await?;
     let parent_directory = connection
-        .find_fs_node_by_uuid(&parent_uuid, FsNodeType::Directory, &user)
+        .find_fs_node_by_uuid(&parent_uuid, FsNodeType::Directory, &user.uuid)
         .await?;
     let ancestors = connection
         .find_fs_nodes_ancestor_by_id(parent_directory.id, &user)

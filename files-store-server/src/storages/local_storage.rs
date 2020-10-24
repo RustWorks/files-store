@@ -71,4 +71,17 @@ impl Storage for LocalStorage {
         let path = format!("{}/{}/{}", self.local_storage_path, user_uuid, uuid);
         Ok(async_std::fs::remove_file(path).await?)
     }
+
+    async fn create_thumbnail_file(
+        &self,
+        thumbnail_uuid: &Uuid,
+        user_uuid: &Uuid,
+    ) -> Result<tokio::fs::File, ApiError> {
+        let path = format!(
+            "{}/{}/{}",
+            self.local_storage_path, user_uuid, thumbnail_uuid
+        );
+        let file = tokio::fs::File::create(&path).await?;
+        Ok(file)
+    }
 }

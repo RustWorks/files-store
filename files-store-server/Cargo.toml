@@ -24,8 +24,10 @@ jemallocator = "0.3"
 async-std = "1.6"
 sanitize-filename = "0.3"
 itertools = "0.9"
+image = "0.23"
 
 # Web
+actix = "0.10"
 actix-web = "3.1"
 actix-multipart = "0.3"
 actix-files = "0.4"

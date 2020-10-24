@@ -23,11 +23,17 @@ pub enum ApiError {
     SerdeJson(#[from] serde_json::Error),
     #[error("repository")]
     Repository(#[from] RepositoryError),
+    #[error("jobs")]
+    Jobs(#[from] actix::MailboxError),
+    #[error("blocking_error")]
+    BlockingError(#[from] actix_web::error::BlockingError<image::ImageError>),
+    #[error("image error")]
+    ImageError(#[from] image::ImageError),
 }
 
 impl ResponseError for ApiError {
     fn error_response(&self) -> HttpResponse {
-        dbg!(self);
+        tracing::error!("Api error: {}", &self);
         match self {
             Self::Invalid { message } => HttpResponse::build(http::StatusCode::BAD_REQUEST)
                 .json(json!({ "message": message })),
@@ -43,6 +49,9 @@ impl ResponseError for ApiError {
             | Self::IO(_)
             | Self::Sqlx(_)
             | Self::Repository(_)
+            | Self::Jobs(_)
+            | Self::BlockingError(_)
+            | Self::ImageError(_)
             | Self::SerdeJson(_) => HttpResponse::build(http::StatusCode::INTERNAL_SERVER_ERROR)
                 .json(json!({ "message": "technical.error" })),
         }

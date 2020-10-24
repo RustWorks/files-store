@@ -6,6 +6,10 @@ export function getDownloadUri(uuid: string): string {
   return `${baseUrl}/api/files/download/${uuid}`
 }
 
+export function getThumbnailUri(uuid: string): string {
+  return `${baseUrl}/api/files/thumbnail/${uuid}`
+}
+
 export function getFiles(uuid?: string): Promise<FsNodesResponse> {
   const path = uuid ? `api/files/${uuid}` : "api/files"
   return fetch(`${baseUrl}/${path}`).then(response => response.json())

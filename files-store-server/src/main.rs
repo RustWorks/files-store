@@ -3,7 +3,7 @@ extern crate diesel;
 extern crate diesel_migrations;
 
 use actix_cors::Cors;
-use actix_web::{middleware, App, HttpServer};
+use actix_web::{middleware, rt, App, HttpServer};
 use dotenv::dotenv;
 use tracing::info;
 
@@ -13,16 +13,15 @@ mod errors;
 mod repositories;
 mod routes;
 mod storages;
+mod thumbnail_job;
 
 use crate::config::Config;
 use crate::storages::LocalStorage;
+use crate::thumbnail_job::ThumbnailActor;
 
 embed_migrations!("./migrations");
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    dotenv().ok();
-    tracing_subscriber::fmt::init();
+async fn create_server() -> Result<(), std::io::Error> {
     let config = Config::new().expect("Config Error");
     let address = config.address();
 
@@ -49,11 +48,15 @@ async fn main() -> std::io::Result<()> {
         .await
         .expect("Local storage path error");
 
-    HttpServer::new(move || {
+    let _ = HttpServer::new(move || {
         App::new()
             .data(sqlx_pool.clone())
             .data(config.clone())
             .data(local_storage.clone())
+            .data(ThumbnailActor::start(
+                sqlx_pool.clone(),
+                local_storage.clone(),
+            ))
             .wrap(middleware::DefaultHeaders::new().header("X-Version", "0.1.0"))
             .wrap(middleware::Compress::default())
             .wrap(middleware::Logger::default())
@@ -62,11 +65,24 @@ async fn main() -> std::io::Result<()> {
             .service(routes::create_directory::create_directory)
             .service(routes::get_files::get_root_files)
             .service(routes::get_files::get_files)
+            .service(routes::get_thumbnail::get_thumbnail_route)
             .service(routes::delete_fs_node::delete_fs_node_route)
             .service(routes::move_fs_node::move_fs_node_route)
             .service(routes::download::download)
     })
     .bind(&address)?
     .run()
-    .await
+    .await;
+    Ok(())
+}
+
+fn main() -> std::io::Result<()> {
+    dotenv().ok();
+    tracing_subscriber::fmt::init();
+
+    let mut system = rt::System::new("file-store");
+
+    let server = create_server();
+
+    system.block_on(server)
 }

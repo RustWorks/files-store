@@ -10,7 +10,7 @@ pub trait FsNodeStore {
     async fn insert(
         &mut self,
         create_stored_fs_node: CreateStoredFsNode,
-        user: &User,
+        user_uuid: &Uuid,
     ) -> Result<StoredFsNode, RepositoryError>;
 
     async fn find_fs_node_by_name(
@@ -18,6 +18,12 @@ pub trait FsNodeStore {
         parent_id: i64,
         name: &str,
         user: &User,
+    ) -> Result<Option<StoredFsNode>, RepositoryError>;
+
+    async fn find_fs_node_thumbnail_by_uuid(
+        &mut self,
+        parent_id: i64,
+        user_uuid: &Uuid,
     ) -> Result<Option<StoredFsNode>, RepositoryError>;
 
     async fn find_root_fs_node(
@@ -30,7 +36,7 @@ pub trait FsNodeStore {
         &mut self,
         uuid: &Uuid,
         fs_node_type: FsNodeType,
-        user: &User,
+        user_uuid: &Uuid,
     ) -> Result<StoredFsNode, RepositoryError>;
 
     async fn find_any_fs_node_by_uuid(
@@ -79,7 +85,7 @@ impl FsNodeStore for PgConnection {
     async fn insert(
         &mut self,
         create_stored_fs_node: CreateStoredFsNode,
-        user: &User,
+        user_uuid: &Uuid,
     ) -> Result<StoredFsNode, RepositoryError> {
         let stored_fs_node = query_as(
             r#"
@@ -99,7 +105,7 @@ impl FsNodeStore for PgConnection {
         .bind(create_stored_fs_node.parent_id)
         .bind(&create_stored_fs_node.name)
         .bind(Json(create_stored_fs_node.metadata))
-        .bind(user.uuid)
+        .bind(user_uuid)
         .fetch_one(self)
         .await?;
         Ok(stored_fs_node)
@@ -130,7 +136,7 @@ impl FsNodeStore for PgConnection {
         &mut self,
         uuid: &Uuid,
         fs_node_type: FsNodeType,
-        user: &User,
+        user_uuid: &Uuid,
     ) -> Result<StoredFsNode, RepositoryError> {
         let stored_fs_node = query_as(
             r#"
@@ -143,7 +149,7 @@ impl FsNodeStore for PgConnection {
         )
         .bind(uuid)
         .bind(fs_node_type.to_string())
-        .bind(user.uuid)
+        .bind(user_uuid)
         .fetch_one(self)
         .await?;
         Ok(stored_fs_node)
@@ -243,6 +249,34 @@ impl FsNodeStore for PgConnection {
         .bind(parent_id)
         .bind(name)
         .bind(user.uuid)
+        .fetch_optional(self)
+        .await?;
+        Ok(fs_node)
+    }
+
+    async fn find_fs_node_thumbnail_by_uuid(
+        &mut self,
+        parent_id: i64,
+        user_uuid: &Uuid,
+    ) -> Result<Option<StoredFsNode>, RepositoryError> {
+        let fs_node = query_as(
+            r#"
+            SELECT d.*
+            FROM fs_nodes AS d
+                JOIN fs_nodes_tree_paths AS p
+                    ON d.id = p.descendant_id
+                JOIN fs_nodes_tree_paths AS crumbs
+                    ON crumbs.descendant_id = p.descendant_id
+            WHERE p.ancestor_id = $1
+                AND d.is_deleted = false
+                AND p.depth = 1
+                AND user_uuid = $2
+                AND d.node_type = 'thumbnail'
+            GROUP BY d.id, p.depth
+            "#,
+        )
+        .bind(parent_id)
+        .bind(user_uuid)
         .fetch_optional(self)
         .await?;
         Ok(fs_node)

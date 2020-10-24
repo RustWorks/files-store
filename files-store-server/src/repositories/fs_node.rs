@@ -10,6 +10,7 @@ pub enum FsNodeType {
     File,
     Directory,
     Root,
+    Thumbnail,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -21,6 +22,12 @@ pub enum FsNodeMetadata {
         size: i64,
     },
     Directory,
+    Thumbnail {
+        content_type: String,
+        size: i64,
+        width: i64,
+        heigth: i64,
+    },
 }
 
 impl FsNodeMetadata {
@@ -31,6 +38,15 @@ impl FsNodeMetadata {
             size,
         }
     }
+
+    pub fn new_thumbnail(content_type: String, size: i64, width: i64, heigth: i64) -> Self {
+        Self::Thumbnail {
+            content_type,
+            size,
+            width,
+            heigth,
+        }
+    }
 }
 
 impl Display for FsNodeType {
@@ -39,6 +55,7 @@ impl Display for FsNodeType {
             FsNodeType::File => write!(f, "file"),
             FsNodeType::Directory => write!(f, "directory"),
             FsNodeType::Root => write!(f, "root"),
+            FsNodeType::Thumbnail => write!(f, "thumbnail"),
         }
     }
 }
@@ -50,6 +67,7 @@ impl FsNodeType {
             "file" => FsNodeType::File,
             "directory" => FsNodeType::Directory,
             "root" => FsNodeType::Root,
+            "thumbnail" => FsNodeType::Thumbnail,
             _ => panic!("FsNodeType parsing error: {}", text), //TODO find a better solution
         }
     }

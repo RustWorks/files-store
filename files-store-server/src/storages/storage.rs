@@ -14,6 +14,12 @@ pub trait Storage {
     async fn get_file(&self, uuid: &Uuid, user_uuid: &Uuid) -> Result<tokio::fs::File, ApiError>;
 
     async fn remove_file(&self, uuid: &Uuid, user_uuid: &Uuid) -> Result<(), ApiError>;
+
+    async fn create_thumbnail_file(
+        &self,
+        thumbnail_uuid: &Uuid,
+        user_uuid: &Uuid,
+    ) -> Result<tokio::fs::File, ApiError>;
 }
 
 #[async_trait]

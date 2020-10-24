@@ -25,7 +25,7 @@ async fn create_directory(
     let mut tx = pool.begin().await?;
     let parent_directory = match payload.parent_uuid {
         Some(ref parent_uuid) => {
-            tx.find_fs_node_by_uuid(parent_uuid, FsNodeType::Directory, &user)
+            tx.find_fs_node_by_uuid(parent_uuid, FsNodeType::Directory, &user.uuid)
                 .await?
         }
         None => tx.find_root_fs_node(FsNodeType::Root, &user).await?,
@@ -40,7 +40,7 @@ async fn create_directory(
         name,
         FsNodeMetadata::Directory,
     );
-    let directory: FsNode = tx.insert(create_stored_fs_node, &user).await?.into();
+    let directory: FsNode = tx.insert(create_stored_fs_node, &user.uuid).await?.into();
     tx.commit().await?;
     Ok(HttpResponse::Ok().json(directory))
 }

@@ -15,6 +15,7 @@ use crate::auth::User;
 use crate::errors::ApiError;
 use crate::repositories::{CreateStoredFsNode, FsNode, FsNodeMetadata, FsNodeStore, FsNodeType};
 use crate::storages::{LocalStorage, Storage};
+use crate::thumbnail_job::{CreateThumbnail, ThumbnailActorAddr};
 
 fn get_filename(field: &Field) -> Option<String> {
     let content_disposition = field.content_disposition()?;
@@ -45,6 +46,7 @@ async fn upload(
     local_storage: Data<LocalStorage>,
     parent_uuid: Path<Uuid>,
     user: User,
+    thumbnail_job: Data<ThumbnailActorAddr>,
 ) -> Result<HttpResponse, ApiError> {
     let mut tx = pool.begin().await?;
     let mut uploaded_files: Vec<Value> = vec![];
@@ -54,7 +56,7 @@ async fn upload(
         })?;
         let file_uuid = Uuid::new_v4();
         let parent_directory = tx
-            .find_fs_node_by_uuid(&parent_uuid, FsNodeType::Directory, &user)
+            .find_fs_node_by_uuid(&parent_uuid, FsNodeType::Directory, &user.uuid)
             .await?;
         debug!("Upload file parent directory: {:?}", &parent_directory);
         let maybe_existing_fs_node = tx
@@ -70,7 +72,6 @@ async fn upload(
                 .find_fs_nodes_ancestor_by_id(parent_directory.id, &user)
                 .await?;
             let path = itertools::join(ancestors.into_iter().map(|a| a.name), "/");
-            debug!("uploade file path {}", &path);
 
             let mut uploder = local_storage.get_uploader(&file_uuid, &user.uuid).await?;
             let mut size: usize = 0;
@@ -83,7 +84,9 @@ async fn upload(
             }
             let hash = format!("{:02x}", hasher.finalize());
             let content_type = field.content_type().to_string();
-            let file_fs_node_metadata = FsNodeMetadata::new_file(hash, content_type, size as i64);
+            debug!("uploade file content_type={} path={}", &content_type, &path);
+            let file_fs_node_metadata =
+                FsNodeMetadata::new_file(hash, content_type.clone(), size as i64);
             let create_stored_fs_node = CreateStoredFsNode::new(
                 file_uuid,
                 parent_directory.id,
@@ -91,9 +94,14 @@ async fn upload(
                 filename,
                 file_fs_node_metadata,
             );
-            let stored_fs_node = tx.insert(create_stored_fs_node, &user).await?;
+            let stored_fs_node = tx.insert(create_stored_fs_node, &user.uuid).await?;
             let fs_node: FsNode = stored_fs_node.into();
-            uploaded_files.push(serde_json::to_value(fs_node)?);
+            if (&content_type == "image/jpeg") || (&content_type == "image/png") {
+                let _ = thumbnail_job
+                    .send(CreateThumbnail::new(fs_node.uuid, fs_node.user_uuid))
+                    .await?;
+            }
+            uploaded_files.push(serde_json::to_value(&fs_node)?);
         } else {
             uploaded_files.push(serde_json::to_value(UploadError::new(
                 filename,
