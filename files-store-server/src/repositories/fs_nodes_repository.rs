@@ -28,14 +28,14 @@ pub trait FsNodeStore {
 
     async fn find_root_fs_node(
         &mut self,
-        fs_node_type: FsNodeType,
+        fs_node_type: &FsNodeType,
         user: &User,
     ) -> Result<StoredFsNode, RepositoryError>;
 
     async fn find_fs_node_by_uuid(
         &mut self,
         uuid: &Uuid,
-        fs_node_type: FsNodeType,
+        fs_node_type: &FsNodeType,
         user_uuid: &Uuid,
     ) -> Result<StoredFsNode, RepositoryError>;
 
@@ -57,7 +57,7 @@ pub trait FsNodeStore {
         user: &User,
     ) -> Result<Vec<StoredFsNode>, RepositoryError>;
 
-    async fn update_deleteed_fs_node(
+    async fn update_deleted_at_fs_node(
         &mut self,
         id: i64,
         user: &User,
@@ -113,7 +113,7 @@ impl FsNodeStore for PgConnection {
 
     async fn find_root_fs_node(
         &mut self,
-        fs_node_type: FsNodeType,
+        fs_node_type: &FsNodeType,
         user: &User,
     ) -> Result<StoredFsNode, RepositoryError> {
         let stored_fs_node = query_as(
@@ -135,7 +135,7 @@ impl FsNodeStore for PgConnection {
     async fn find_fs_node_by_uuid(
         &mut self,
         uuid: &Uuid,
-        fs_node_type: FsNodeType,
+        fs_node_type: &FsNodeType,
         user_uuid: &Uuid,
     ) -> Result<StoredFsNode, RepositoryError> {
         let stored_fs_node = query_as(
@@ -188,7 +188,6 @@ impl FsNodeStore for PgConnection {
                 JOIN fs_nodes_tree_paths AS crumbs
                     ON crumbs.descendant_id = p.descendant_id
             WHERE p.ancestor_id = $1
-                AND d.is_deleted = false
                 AND p.depth = 1
                 AND user_uuid = $2
             GROUP BY d.id, p.depth
@@ -239,7 +238,6 @@ impl FsNodeStore for PgConnection {
                 JOIN fs_nodes_tree_paths AS crumbs
                     ON crumbs.descendant_id = p.descendant_id
             WHERE p.ancestor_id = $1
-                AND d.is_deleted = false
                 AND d.name = $2
                 AND p.depth = 1
                 AND user_uuid = $3
@@ -268,7 +266,6 @@ impl FsNodeStore for PgConnection {
                 JOIN fs_nodes_tree_paths AS crumbs
                     ON crumbs.descendant_id = p.descendant_id
             WHERE p.ancestor_id = $1
-                AND d.is_deleted = false
                 AND p.depth = 1
                 AND user_uuid = $2
                 AND d.node_type = 'thumbnail'
@@ -282,7 +279,7 @@ impl FsNodeStore for PgConnection {
         Ok(fs_node)
     }
 
-    async fn update_deleteed_fs_node(
+    async fn update_deleted_at_fs_node(
         &mut self,
         id: i64,
         user: &User,
@@ -290,7 +287,7 @@ impl FsNodeStore for PgConnection {
         let updated = query(
             r#"
             UPDATE fs_nodes AS d
-            SET is_deleted = true
+            SET deleted_at = NOW()
             FROM fs_nodes_tree_paths AS p 
                 JOIN fs_nodes_tree_paths AS crumbs
                     ON crumbs.descendant_id = p.descendant_id

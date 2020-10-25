@@ -20,7 +20,7 @@ async fn get_thumbnail_route(
 ) -> Result<NamedFile, ApiError> {
     let mut connection = pool.acquire().await?;
     let fs_node = connection
-        .find_fs_node_by_uuid(&file_uuid, FsNodeType::File, &user.uuid)
+        .find_fs_node_by_uuid(&file_uuid, &FsNodeType::File, &user.uuid)
         .await?;
     let thumbnail = connection
         .find_fs_node_thumbnail_by_uuid(fs_node.id, &user.uuid)

@@ -56,7 +56,7 @@ async fn upload(
         })?;
         let file_uuid = Uuid::new_v4();
         let parent_directory = tx
-            .find_fs_node_by_uuid(&parent_uuid, FsNodeType::Directory, &user.uuid)
+            .find_fs_node_by_uuid(&parent_uuid, &FsNodeType::Directory, &user.uuid)
             .await?;
         debug!("Upload file parent directory: {:?}", &parent_directory);
         let maybe_existing_fs_node = tx

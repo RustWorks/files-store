@@ -20,7 +20,7 @@ async fn download(
 ) -> Result<NamedFile, ApiError> {
     let mut connection = pool.acquire().await?;
     let fs_node = connection
-        .find_fs_node_by_uuid(&file_uuid, FsNodeType::File, &user.uuid)
+        .find_fs_node_by_uuid(&file_uuid, &FsNodeType::File, &user.uuid)
         .await?;
     let file = local_storage.get_file(&fs_node.uuid, &user.uuid).await?;
     let named_file = NamedFile::from_file(file.into_std().await, &fs_node.name)?;

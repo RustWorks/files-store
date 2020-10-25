@@ -41,3 +41,9 @@ export function moveFsNode(source_uuid: string, destination_uuid: string) {
     body: JSON.stringify({ source_uuid, destination_uuid })
   })
 }
+
+export function deleteFsNode(uuid: string): Promise<Response> {
+  return fetch(`${baseUrl}/api/files${uuid}`, {
+    method: "DELETE"
+  })
+}

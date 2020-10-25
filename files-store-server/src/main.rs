@@ -66,8 +66,8 @@ async fn create_server() -> Result<(), std::io::Error> {
             .service(routes::get_files::get_root_files)
             .service(routes::get_files::get_files)
             .service(routes::get_thumbnail::get_thumbnail_route)
-            .service(routes::delete_fs_node::delete_fs_node_route)
             .service(routes::move_fs_node::move_fs_node_route)
+            .service(routes::move_fs_node_to_bin::move_fs_node_to_bin_route)
             .service(routes::download::download)
     })
     .bind(&address)?

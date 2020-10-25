@@ -55,7 +55,7 @@ async fn handle(
 ) -> Result<StoredFsNode, ApiError> {
     let mut connection = pool.begin().await?;
     let fs_node = connection
-        .find_fs_node_by_uuid(&msg.fs_node_uuid, FsNodeType::File, &msg.fs_node_user_uuid)
+        .find_fs_node_by_uuid(&msg.fs_node_uuid, &FsNodeType::File, &msg.fs_node_user_uuid)
         .await?;
     let file = local_storage
         .get_file(&fs_node.uuid, &fs_node.user_uuid)

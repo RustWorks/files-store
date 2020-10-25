@@ -6,12 +6,14 @@ use std::string::ToString;
 use strum::EnumString;
 use uuid::Uuid;
 
-#[derive(Debug, PartialEq, EnumString, strum::ToString)]
+#[derive(Debug, PartialEq, EnumString, strum::ToString, Deserialize, Serialize)]
 #[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase")]
 pub enum FsNodeType {
     File,
     Directory,
     Root,
+    Bin,
     Thumbnail,
 }
 
@@ -24,6 +26,7 @@ pub enum FsNodeMetadata {
         size: i64,
     },
     Directory,
+    Bin,
     Thumbnail {
         content_type: String,
         size: i64,
@@ -59,10 +62,10 @@ pub struct StoredFsNode {
     pub node_type: String,
     pub name: String,
     pub metadata: Json<FsNodeMetadata>,
-    pub is_deleted: bool,
     pub user_uuid: Uuid,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub deleted_at: Option<NaiveDateTime>,
 }
 
 #[derive(Debug, Serialize)]

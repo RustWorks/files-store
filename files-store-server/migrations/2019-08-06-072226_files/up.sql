@@ -7,10 +7,10 @@ CREATE TABLE fs_nodes (
   node_type    TEXT NOT NULL,
   name         TEXT NOT NULL,
   metadata     JSONB NOT NULL,
-  is_deleted   BOOLEAN NOT NULL DEFAULT false,
   user_uuid    UUID NOT NULL,
   created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+  deleted_at   TIMESTAMP,
   FOREIGN KEY (parent_id) REFERENCES fs_nodes(id) ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
@@ -46,4 +46,5 @@ CREATE TRIGGER after_change_fs_node AFTER INSERT OR UPDATE
   ON fs_nodes FOR EACH ROW EXECUTE PROCEDURE after_change_fs_node();
 
 -- Insert root
-INSERT INTO fs_nodes (uuid, node_type, parent_id, name, metadata, user_uuid) VALUES ('a0d4d0d1-d852-467f-bc43-e5c050659d34', 'root', NULL, '', '{"type": "Directory"}'::json, '55e907b7-33ff-4989-a609-0b812c77daf6');
+INSERT INTO fs_nodes (uuid, node_type, parent_id, name, metadata, user_uuid) VALUES ('a0d4d0d1-d852-467f-bc43-e5c050659d34', 'root', NULL, 'Root', '{"type": "Directory"}'::json, '55e907b7-33ff-4989-a609-0b812c77daf6');
+INSERT INTO fs_nodes (uuid, node_type, parent_id, name, metadata, user_uuid) VALUES ('76ae8908-51ee-453c-9b4d-dead74beef53', 'bin', NULL, 'Bin', '{"type": "Bin"}'::json, '55e907b7-33ff-4989-a609-0b812c77daf6');
