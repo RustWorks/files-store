@@ -4,15 +4,16 @@ use actix_web::{
 };
 use serde::Deserialize;
 use sqlx::PgPool;
+use std::str::FromStr;
 use tracing::debug;
 use uuid::Uuid;
 
 use crate::auth::User;
 use crate::errors::ApiError;
-use crate::repositories::{FsNodeStore, FsNodeType, StoredFsNode};
+use crate::repositories::{FsNodeStore, FsNodeType};
 
-fn can_move(sourcet_fs_node: &StoredFsNode, destination_fs_node: &StoredFsNode) -> bool {
-    match (sourcet_fs_node.node_type(), destination_fs_node.node_type()) {
+fn can_move(source_fs_node_type: &FsNodeType, destination_fs_node_type: &FsNodeType) -> bool {
+    match (source_fs_node_type, destination_fs_node_type) {
         (FsNodeType::Directory, FsNodeType::Directory) => true,
         (FsNodeType::Directory, FsNodeType::Root) => true,
         (FsNodeType::File, FsNodeType::Directory) => true,
@@ -35,7 +36,7 @@ async fn move_fs_node_route(
 ) -> Result<HttpResponse, ApiError> {
     let mut connection = pool.begin().await?;
 
-    let sourcet_fs_node = connection
+    let source_fs_node = connection
         .find_any_fs_node_by_uuid(&query.source_uuid, &user)
         .await?;
 
@@ -45,21 +46,24 @@ async fn move_fs_node_route(
 
     debug!(
         "Fs node to move = {:#?} into = {:#?}",
-        &sourcet_fs_node, &destination_fs_node
+        &source_fs_node, &destination_fs_node
     );
 
-    if sourcet_fs_node.parent_id.is_some()
-        && can_move(&sourcet_fs_node, &destination_fs_node)
-        && sourcet_fs_node.id != destination_fs_node.id
+    let source_fs_node_type = FsNodeType::from_str(&source_fs_node.node_type)?;
+    let destination_fs_node_type = FsNodeType::from_str(&destination_fs_node.node_type)?;
+
+    if source_fs_node.parent_id.is_some()
+        && can_move(&source_fs_node_type, &destination_fs_node_type)
+        && source_fs_node.id != destination_fs_node.id
     {
         connection
-            .move_fs_node_update_parent_id(sourcet_fs_node.id, destination_fs_node.id)
+            .move_fs_node_update_parent_id(source_fs_node.id, destination_fs_node.id)
             .await?;
         connection
-            .move_fs_node_disconnect(sourcet_fs_node.id)
+            .move_fs_node_disconnect(source_fs_node.id)
             .await?;
         connection
-            .move_fs_node_update_ancestors(sourcet_fs_node.id, destination_fs_node.id)
+            .move_fs_node_update_ancestors(source_fs_node.id, destination_fs_node.id)
             .await?;
 
         connection.commit().await?;

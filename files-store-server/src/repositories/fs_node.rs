@@ -2,10 +2,12 @@ use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use sqlx::types::Json;
 use sqlx::FromRow;
-use std::fmt::Display;
+use std::string::ToString;
+use strum::EnumString;
 use uuid::Uuid;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, EnumString, strum::ToString)]
+#[strum(serialize_all = "lowercase")]
 pub enum FsNodeType {
     File,
     Directory,
@@ -49,30 +51,6 @@ impl FsNodeMetadata {
     }
 }
 
-impl Display for FsNodeType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            FsNodeType::File => write!(f, "file"),
-            FsNodeType::Directory => write!(f, "directory"),
-            FsNodeType::Root => write!(f, "root"),
-            FsNodeType::Thumbnail => write!(f, "thumbnail"),
-        }
-    }
-}
-
-impl FsNodeType {
-    #[allow(dead_code)]
-    pub fn parse(text: &str) -> Self {
-        match text {
-            "file" => FsNodeType::File,
-            "directory" => FsNodeType::Directory,
-            "root" => FsNodeType::Root,
-            "thumbnail" => FsNodeType::Thumbnail,
-            _ => panic!("FsNodeType parsing error: {}", text), //TODO find a better solution
-        }
-    }
-}
-
 #[derive(Debug, Clone, FromRow)]
 pub struct StoredFsNode {
     pub id: i64,
@@ -85,12 +63,6 @@ pub struct StoredFsNode {
     pub user_uuid: Uuid,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-}
-
-impl StoredFsNode {
-    pub fn node_type(&self) -> FsNodeType {
-        FsNodeType::parse(&self.node_type)
-    }
 }
 
 #[derive(Debug, Serialize)]

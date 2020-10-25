@@ -29,6 +29,8 @@ pub enum ApiError {
     BlockingError(#[from] actix_web::error::BlockingError<image::ImageError>),
     #[error("image error")]
     ImageError(#[from] image::ImageError),
+    #[error("strum parse")]
+    Strum(#[from] strum::ParseError),
 }
 
 impl ResponseError for ApiError {
@@ -52,6 +54,7 @@ impl ResponseError for ApiError {
             | Self::Jobs(_)
             | Self::BlockingError(_)
             | Self::ImageError(_)
+            | Self::Strum(_)
             | Self::SerdeJson(_) => HttpResponse::build(http::StatusCode::INTERNAL_SERVER_ERROR)
                 .json(json!({ "message": "technical.error" })),
         }
