@@ -17,7 +17,7 @@
   <div class="icon" class:selected on:click="{() => selectedFsNode.toggle(fsNode)}">
     {#if fsNode.node_type === 'directory'}
       <DirectoryIcon size="{30}" />
-    {:else if fsNode.node_type === 'file' && fsNode.metadata.type === 'File' && fsNode.metadata.content_type === 'image/jpeg'}
+    {:else if fsNode.node_type === 'file' && fsNode.metadata.type === 'File' && (fsNode.metadata.content_type === 'image/jpeg' || fsNode.metadata.content_type === 'image/png')}
       <img class="thumbnail" src="{getThumbnailUri(fsNode.uuid)}" alt="thumbnail" />
     {:else}
       <FileIcon size="{30}" />
@@ -36,7 +36,7 @@
   .thumbnail {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
   }
 
   .icon {

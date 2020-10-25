@@ -10,7 +10,7 @@
 
 <div class="single-fs-node-selected">
   <div class="name">{fsNode.name}</div>
-  {#if fsNode.node_type === 'file' && fsNode.metadata.type === 'File' && fsNode.metadata.content_type === 'image/jpeg'}
+  {#if fsNode.node_type === 'file' && fsNode.metadata.type === 'File' && (fsNode.metadata.content_type === 'image/jpeg' || fsNode.metadata.content_type === 'image/png')}
     <div class="thumbnail"><img src="{getThumbnailUri(fsNode.uuid)}" alt="thumbnail" /></div>
   {/if}
   <div class="uuid">Uuid: {fsNode.uuid}</div>
