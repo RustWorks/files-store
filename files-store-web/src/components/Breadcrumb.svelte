@@ -1,6 +1,7 @@
 <script lang="typescript">
   import type { FsNode } from "../FsNode"
   import HomeIcon from "../icons/HomeIcon.svelte"
+  import DeleteIcon from "../icons/DeleteIcon.svelte"
 
   export let ancestors: FsNode[]
 </script>
@@ -10,6 +11,10 @@
     {#if ancestor.node_type === 'root'}
       <a href="#/">
         <HomeIcon size="{30}" />
+      </a>
+    {:else if ancestor.node_type === 'bin'}
+      <a href="#/bin">
+        <DeleteIcon size="{30}" />
       </a>
     {:else}
       <div class="separaton">/</div>

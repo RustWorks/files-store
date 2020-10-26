@@ -1,4 +1,6 @@
-export type FsNodeType = "directory" | "file" | "root"
+export type FsNodeRootType = "root" | "bin"
+
+export type FsNodeType = "directory" | "file" | FsNodeRootType
 
 export interface FileMetadata {
   type: "File"

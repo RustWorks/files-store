@@ -2,10 +2,24 @@
   import format from "date-fns/format"
   import type { FsNode } from "../FsNode"
   import Button from "./Button.svelte"
-  import { wantMoveFsNode } from "../stores/store"
-  import { getThumbnailUri } from "../FileStoreApi"
+  import { wantMoveFsNode, fsNodesStore } from "../stores/store"
+  import { getThumbnailUri, deleteFsNode } from "../FileStoreApi"
   export let fsNode: FsNode
   export let unselected = false
+
+  let loading = false
+
+  $: handleDeleteFsNode = () => {
+    loading = true
+    deleteFsNode(fsNode.uuid)
+      .then(() => {
+        loading = false
+        fsNodesStore.remove(fsNode)
+      })
+      .catch(error => {
+        console.log("deleteFsNode error", error) // TODO handle error
+      })
+  }
 </script>
 
 <div class="single-fs-node-selected">
@@ -20,6 +34,9 @@
 
   {#if !unselected && fsNode.node_type !== 'root'}
     <Button label="Move" on:click="{() => wantMoveFsNode.set(fsNode)}" />
+  {/if}
+  {#if !unselected && fsNode.node_type !== 'root' && fsNode.node_type !== 'bin'}
+    <Button label="Delete" loading="{loading}" on:click="{handleDeleteFsNode}" />
   {/if}
 </div>
 

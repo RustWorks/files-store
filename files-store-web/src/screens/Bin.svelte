@@ -4,17 +4,12 @@
   import Header from "../components/Header.svelte"
   import FsNodes from "../components/FsNodes.svelte"
   import LoaderIcon from "../icons/LoaderIcon.svelte"
-  import Uploader from "../components/Uploader.svelte"
   import Breadcrumb from "../components/Breadcrumb.svelte"
   import Button from "../components/Button.svelte"
-  import FlyingPanel from "../components/FlyingPanel.svelte"
-  import FsNodeSelection from "../components/FsNodeSelection.svelte"
-  import Modal from "../components/Modal.svelte"
-  import MoveFsNodeModal from "../components/MoveFsNodeModal.svelte"
 
-  import { fsNodesStore, wantCreateDirectory, selectedFsNode, wantMoveFsNode } from "../stores/store"
+  import { fsNodesStore, selectedFsNode } from "../stores/store"
 
-  $: filesResponse = getFiles($route.params.id).then(response => {
+  $: filesResponse = getFiles($route.params.id, "bin").then(response => {
     fsNodesStore.set(response.childrens)
     return response
   })
@@ -31,20 +26,11 @@
       <div class="tools">
         <Breadcrumb ancestors="{files.ancestors}" />
         <div class="actions">
-          <Uploader parent="{files.parent}" label="Upload" />
-          <Button label="Create Directory" on:click="{() => wantCreateDirectory.update(v => !v)}" />
+          <Button label="Cleanup" on:click="{() => {}}" />
         </div>
       </div>
     </div>
     <FsNodes parentUuid="{files.parent.uuid}" />
-    <FlyingPanel selected="{$selectedFsNode.length > 0}" on:click="{() => selectedFsNode.close()}">
-      <FsNodeSelection parent="{files.parent}" />
-    </FlyingPanel>
-    {#if $wantMoveFsNode}
-      <Modal title="{`Move ${$wantMoveFsNode?.name}`}" on:close="{() => wantMoveFsNode.set(undefined)}">
-        <MoveFsNodeModal parent="{files.parent}" fsNode="{$wantMoveFsNode || files.parent}" />
-      </Modal>
-    {/if}
   {:catch error}
     <p style="color: red">{error.message}</p>
   {/await}

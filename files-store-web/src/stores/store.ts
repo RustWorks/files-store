@@ -34,6 +34,7 @@ function createFsNodesStore() {
       set(fsNodes)
       return fsNodes
     },
+    remove: (fsNode: FsNode) => update(files => files.filter(f => f.uuid !== fsNode.uuid)),
     move: (fsNode: FsNode, _: FsNode) => update(files => files.filter(f => f.uuid !== fsNode.uuid)),
     addDirectory: (fsNode: FsNode) => update(files => [fsNode, ...files]),
     add: (fsNode: FsNode[]) => update(files => files.concat(fsNode))
