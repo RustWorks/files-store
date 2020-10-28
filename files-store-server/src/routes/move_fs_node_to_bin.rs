@@ -21,7 +21,7 @@ async fn move_fs_node_to_bin_route(
     let source_fs_node = connection.find_any_fs_node_by_uuid(&uuid, &user).await?;
 
     let bin = connection
-        .find_root_fs_node(&FsNodeType::Bin, &user)
+        .find_root_fs_node(&FsNodeType::Bin, &user.uuid)
         .await?;
 
     debug!(

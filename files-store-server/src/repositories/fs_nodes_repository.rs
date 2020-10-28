@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use chrono::NaiveDateTime;
 use sqlx::{query, query_as, types::Json, Done, PgConnection};
 use uuid::Uuid;
 
@@ -29,7 +30,7 @@ pub trait FsNodeStore {
     async fn find_root_fs_node(
         &mut self,
         fs_node_type: &FsNodeType,
-        user: &User,
+        user_uuid: &Uuid,
     ) -> Result<StoredFsNode, RepositoryError>;
 
     async fn find_fs_node_by_uuid(
@@ -78,6 +79,13 @@ pub trait FsNodeStore {
         src: i64,
         dest: i64,
     ) -> Result<u64, RepositoryError>;
+
+    async fn find_deleted_fs_nodes(
+        &mut self,
+        date: &NaiveDateTime,
+        node_type: &FsNodeType,
+        user_uuid: &Uuid,
+    ) -> Result<Vec<StoredFsNode>, RepositoryError>;
 }
 
 #[async_trait]
@@ -114,7 +122,7 @@ impl FsNodeStore for PgConnection {
     async fn find_root_fs_node(
         &mut self,
         fs_node_type: &FsNodeType,
-        user: &User,
+        user_uuid: &Uuid,
     ) -> Result<StoredFsNode, RepositoryError> {
         let stored_fs_node = query_as(
             r#"
@@ -126,7 +134,7 @@ impl FsNodeStore for PgConnection {
         "#,
         )
         .bind(fs_node_type.to_string())
-        .bind(user.uuid)
+        .bind(user_uuid)
         .fetch_one(self)
         .await?;
         Ok(stored_fs_node)
@@ -380,5 +388,28 @@ impl FsNodeStore for PgConnection {
         .execute(self)
         .await?;
         Ok(updated.rows_affected())
+    }
+
+    async fn find_deleted_fs_nodes(
+        &mut self,
+        date: &NaiveDateTime,
+        node_type: &FsNodeType,
+        user_uuid: &Uuid,
+    ) -> Result<Vec<StoredFsNode>, RepositoryError> {
+        let stored_fs_node = query_as(
+            r#"
+            SELECT *
+            FROM fs_nodes
+            WHERE node_type = $1
+                AND deleted_at < $2
+                AND user_uuid = $3
+        "#,
+        )
+        .bind(node_type.to_string())
+        .bind(date)
+        .bind(user_uuid)
+        .fetch_all(self)
+        .await?;
+        Ok(stored_fs_node)
     }
 }

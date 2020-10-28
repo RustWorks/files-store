@@ -10,14 +10,15 @@ use tracing::info;
 mod auth;
 mod config;
 mod errors;
+mod jobs;
 mod repositories;
 mod routes;
 mod storages;
-mod thumbnail_job;
 
 use crate::config::Config;
+use crate::jobs::bin_cleaner_job::BinCleanerActor;
+use crate::jobs::thumbnail_job::ThumbnailActor;
 use crate::storages::LocalStorage;
-use crate::thumbnail_job::ThumbnailActor;
 
 embed_migrations!("./migrations");
 
@@ -48,19 +49,22 @@ async fn create_server() -> Result<(), std::io::Error> {
         .await
         .expect("Local storage path error");
 
+    let bin_cleaner_actor = BinCleanerActor::start(sqlx_pool.clone(), local_storage.clone());
+
+    let thumbnail_actor = ThumbnailActor::start(sqlx_pool.clone(), local_storage.clone());
+
     let _ = HttpServer::new(move || {
         App::new()
             .data(sqlx_pool.clone())
             .data(config.clone())
             .data(local_storage.clone())
-            .data(ThumbnailActor::start(
-                sqlx_pool.clone(),
-                local_storage.clone(),
-            ))
+            .data(thumbnail_actor.clone())
+            .data(bin_cleaner_actor.clone())
             .wrap(middleware::DefaultHeaders::new().header("X-Version", "0.1.0"))
             .wrap(middleware::Compress::default())
             .wrap(middleware::Logger::default())
             .wrap(Cors::permissive())
+            .service(routes::bin_cleanup::bin_cleanup_route)
             .service(routes::upload::upload)
             .service(routes::create_directory::create_directory)
             .service(routes::get_files::get_root_files)

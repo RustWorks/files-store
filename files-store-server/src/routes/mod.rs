@@ -1,3 +1,4 @@
+pub mod bin_cleanup;
 pub mod create_directory;
 pub mod download;
 pub mod get_files;

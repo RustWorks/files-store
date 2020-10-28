@@ -13,9 +13,9 @@ use uuid::Uuid;
 
 use crate::auth::User;
 use crate::errors::ApiError;
+use crate::jobs::thumbnail_job::{CreateThumbnail, ThumbnailActorAddr};
 use crate::repositories::{CreateStoredFsNode, FsNode, FsNodeMetadata, FsNodeStore, FsNodeType};
 use crate::storages::{LocalStorage, Storage};
-use crate::thumbnail_job::{CreateThumbnail, ThumbnailActorAddr};
 
 fn get_filename(field: &Field) -> Option<String> {
     let content_disposition = field.content_disposition()?;

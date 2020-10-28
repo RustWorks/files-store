@@ -43,7 +43,9 @@ async fn get_root_files(
 ) -> Result<HttpResponse, ApiError> {
     let mut connection = pool.acquire().await?;
     let fs_node_type = query.root_type.as_ref().unwrap_or(&FsNodeType::Root);
-    let parent_directory = connection.find_root_fs_node(fs_node_type, &user).await?;
+    let parent_directory = connection
+        .find_root_fs_node(fs_node_type, &user.uuid)
+        .await?;
     let fs_nodes = connection
         .find_fs_nodes_by_parent_id(parent_directory.id, &user)
         .await?;
