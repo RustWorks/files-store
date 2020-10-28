@@ -1,11 +1,11 @@
 <script lang="typescript">
   import type { FsNode, UploadResult } from "../FsNode"
   import { upload } from "../FileStoreApi"
-
   import { fsNodesStore } from "../stores/store"
 
   export let parent: FsNode
   export let label: string | undefined = "Upload"
+
   let files: FileList
 
   export function isFsNode(value: UploadResult): value is FsNode {

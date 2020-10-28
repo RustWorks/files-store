@@ -1,9 +1,12 @@
 <script lang="typescript">
+  import { _ } from "svelte-intl"
   import format from "date-fns/format"
+
   import type { FsNode } from "../FsNode"
-  import Button from "./Button.svelte"
   import { wantMoveFsNode, fsNodesStore } from "../stores/store"
   import { getThumbnailUri, deleteFsNode } from "../FileStoreApi"
+  import Button from "./Button.svelte"
+
   export let fsNode: FsNode
   export let unselected = false
 
@@ -33,10 +36,10 @@
   <div class="user">User uuid: {fsNode.user_uuid}</div>
 
   {#if !unselected && fsNode.node_type !== 'root'}
-    <Button label="Move" on:click="{() => wantMoveFsNode.set(fsNode)}" />
+    <Button label="{$_('move')}" on:click="{() => wantMoveFsNode.set(fsNode)}" />
   {/if}
   {#if !unselected && fsNode.node_type !== 'root' && fsNode.node_type !== 'bin'}
-    <Button label="Delete" loading="{loading}" on:click="{handleDeleteFsNode}" />
+    <Button label="{$_('delete')}" loading="{loading}" on:click="{handleDeleteFsNode}" />
   {/if}
 </div>
 

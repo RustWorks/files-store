@@ -1,9 +1,12 @@
 <script lang="typescript">
-  export let parentUuid: string
+  import { _ } from "svelte-intl"
+
   import type { FsNode as Node } from "../FsNode"
   import FsNode from "../components/FsNode.svelte"
   import DirectoryEdit from "../components/DirectoryEdit.svelte"
   import { fsNodesStore, wantCreateDirectory } from "../stores/store"
+
+  export let parentUuid: string
 
   let fsNodes: Node[]
 
@@ -15,7 +18,7 @@
     <DirectoryEdit name="" parentUuid="{parentUuid}" />
   {/if}
   {#if fsNodes.length === 0}
-    <div class="empty">Empty</div>
+    <div class="empty">{$_('empty')}</div>
   {/if}
   {#each fsNodes as fsNode (fsNode.uuid)}
     <FsNode fsNode="{fsNode}" />

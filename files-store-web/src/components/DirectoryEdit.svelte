@@ -1,9 +1,10 @@
 <script lang="typescript">
-  export let name: string
-  export let parentUuid: string
-  import DirectoryIcon from "../icons/DirectoryIcon.svelte"
   import { createDirectory } from "../FileStoreApi"
   import { fsNodesStore, wantCreateDirectory } from "../stores/store"
+  import DirectoryIcon from "../icons/DirectoryIcon.svelte"
+
+  export let name: string
+  export let parentUuid: string
 
   function handleBlur() {
     if (name !== "") {

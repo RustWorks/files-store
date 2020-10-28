@@ -4,13 +4,15 @@
   import DirectoryIcon from "../icons/DirectoryIcon.svelte"
   import FileIcon from "../icons/FileIcon.svelte"
   import { selectedFsNode } from "../stores/store"
+
   export let fsNode: FsNode
+
   let selected: boolean = false
+  let href = fsNode.node_type === "directory" ? `#/directory/${fsNode.uuid}` : getDownloadUri(fsNode.uuid)
+
   selectedFsNode.subscribe(nodes => {
     selected = !!nodes.find(n => n.uuid === fsNode.uuid)
   })
-
-  let href = fsNode.node_type === "directory" ? `#/directory/${fsNode.uuid}` : getDownloadUri(fsNode.uuid)
 </script>
 
 <div class="fs-node">

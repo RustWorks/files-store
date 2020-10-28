@@ -1,9 +1,10 @@
 <script lang="typescript">
+  import { _ } from "svelte-intl"
 </script>
 
 <header>
-  <a class="home" href="/">Files Store</a>
-  <nav><a class="link" href="#/bin">Bin</a></nav>
+  <a class="home" href="/">{$_('title')}</a>
+  <nav><a class="link" href="#/bin">{$_('bin')}</a></nav>
 </header>
 
 <style>

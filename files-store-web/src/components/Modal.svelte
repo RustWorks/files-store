@@ -1,5 +1,6 @@
 <script lang="typescript">
   import { createEventDispatcher } from "svelte"
+
   import IconButton from "./IconButton.svelte"
   import CloseIcon from "../icons/CloseIcon.svelte"
 

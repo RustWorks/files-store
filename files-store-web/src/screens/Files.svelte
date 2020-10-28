@@ -1,6 +1,9 @@
 <script lang="typescript">
+  import { _ } from "svelte-intl"
   import { route } from "@bjornlu/svelte-router"
+
   import { getFiles } from "../FileStoreApi"
+  import { fsNodesStore, wantCreateDirectory, selectedFsNode, wantMoveFsNode } from "../stores/store"
   import Header from "../components/Header.svelte"
   import FsNodes from "../components/FsNodes.svelte"
   import LoaderIcon from "../icons/LoaderIcon.svelte"
@@ -11,8 +14,6 @@
   import FsNodeSelection from "../components/FsNodeSelection.svelte"
   import Modal from "../components/Modal.svelte"
   import MoveFsNodeModal from "../components/MoveFsNodeModal.svelte"
-
-  import { fsNodesStore, wantCreateDirectory, selectedFsNode, wantMoveFsNode } from "../stores/store"
 
   $: filesResponse = getFiles($route.params.id).then(response => {
     fsNodesStore.set(response.childrens)
@@ -31,8 +32,8 @@
       <div class="tools">
         <Breadcrumb ancestors="{files.ancestors}" />
         <div class="actions">
-          <Uploader parent="{files.parent}" label="Upload" />
-          <Button label="Create Directory" on:click="{() => wantCreateDirectory.update(v => !v)}" />
+          <Uploader parent="{files.parent}" label="{$_('upload')}" />
+          <Button label="{$_('createDirectory')}" on:click="{() => wantCreateDirectory.update(v => !v)}" />
         </div>
       </div>
     </div>

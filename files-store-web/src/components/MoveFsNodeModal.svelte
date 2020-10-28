@@ -1,4 +1,6 @@
 <script lang="typescript">
+  import { _ } from "svelte-intl"
+
   import type { FsNode } from "../FsNode"
   import { wantMoveFsNode, fsNodesStore } from "../stores/store"
   import { getFiles, moveFsNode } from "../FileStoreApi"
@@ -44,7 +46,7 @@
     <div class="navigator">
       <NavigatorBreadcrumb ancestors="{response.ancestors}" onClick="{fsNode => (target = fsNode)}" />
       {#if response.childrens.length === 0}
-        <div class="empty">Empty</div>
+        <div class="empty">{$_('empty')}</div>
       {/if}
       {#each response.childrens.filter(c => c.node_type === 'directory') as fsNode (fsNode.uuid)}
         <div class="directory" on:click="{() => (target = fsNode)}">
@@ -55,7 +57,7 @@
     </div>
   {/await}
   <div class="actions">
-    <Button label="Move" on:click="{handleMove}" loading="{loading}" />
+    <Button label="{$_('move')}" on:click="{handleMove}" loading="{loading}" />
   </div>
 </div>
 

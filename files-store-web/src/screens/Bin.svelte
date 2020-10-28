@@ -1,13 +1,13 @@
 <script lang="typescript">
   import { route } from "@bjornlu/svelte-router"
+
   import { getFiles } from "../FileStoreApi"
+  import { fsNodesStore, selectedFsNode } from "../stores/store"
   import Header from "../components/Header.svelte"
   import FsNodes from "../components/FsNodes.svelte"
   import LoaderIcon from "../icons/LoaderIcon.svelte"
   import Breadcrumb from "../components/Breadcrumb.svelte"
   import Button from "../components/Button.svelte"
-
-  import { fsNodesStore, selectedFsNode } from "../stores/store"
 
   $: filesResponse = getFiles($route.params.id, "bin").then(response => {
     fsNodesStore.set(response.childrens)

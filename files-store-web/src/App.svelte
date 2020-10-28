@@ -1,6 +1,7 @@
 <script lang="typescript">
   import { RouterView, initHashRouter } from "@bjornlu/svelte-router"
 
+  import _ from "./Intl.svelte"
   import Files from "./screens/Files.svelte"
   import Bin from "./screens/Bin.svelte"
 
