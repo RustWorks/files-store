@@ -7,8 +7,9 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::auth::User;
+use crate::domain::{CreateStoredFsNode, FsNode, FsNodeMetadata, FsNodeType};
 use crate::errors::ApiError;
-use crate::repositories::{CreateStoredFsNode, FsNode, FsNodeMetadata, FsNodeStore, FsNodeType};
+use crate::repositories::FsNodeStore;
 
 #[derive(Debug, Deserialize)]
 struct CreateDirectoryQuery {

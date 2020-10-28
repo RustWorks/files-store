@@ -12,9 +12,10 @@ use tracing::debug;
 use uuid::Uuid;
 
 use crate::auth::User;
+use crate::domain::{CreateStoredFsNode, FsNode, FsNodeMetadata, FsNodeType};
 use crate::errors::ApiError;
 use crate::jobs::thumbnail_job::{CreateThumbnail, ThumbnailActorAddr};
-use crate::repositories::{CreateStoredFsNode, FsNode, FsNodeMetadata, FsNodeStore, FsNodeType};
+use crate::repositories::FsNodeStore;
 use crate::storages::{LocalStorage, Storage};
 
 fn get_filename(field: &Field) -> Option<String> {
@@ -60,7 +61,7 @@ async fn upload(
             .await?;
         debug!("Upload file parent directory: {:?}", &parent_directory);
         let maybe_existing_fs_node = tx
-            .find_fs_node_by_name(parent_directory.id, &filename, &user)
+            .find_fs_node_by_name(parent_directory.id, &filename, &user.uuid)
             .await?;
         debug!(
             "Find fs_node with name={} finded={:?}",
@@ -69,7 +70,7 @@ async fn upload(
         dbg!(&maybe_existing_fs_node);
         if maybe_existing_fs_node.is_none() {
             let ancestors = tx
-                .find_fs_nodes_ancestor_by_id(parent_directory.id, &user)
+                .find_fs_nodes_ancestor_by_id(parent_directory.id, &user.uuid)
                 .await?;
             let path = itertools::join(ancestors.into_iter().map(|a| a.name), "/");
 

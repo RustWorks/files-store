@@ -3,8 +3,9 @@ use chrono::prelude::*;
 use sqlx::PgPool;
 use uuid::Uuid;
 
+use crate::domain::FsNodeType;
 use crate::errors::ApiError;
-use crate::repositories::{FsNodeStore, FsNodeType};
+use crate::repositories::FsNodeStore;
 use crate::storages::{LocalStorage, Storage};
 
 #[derive(Debug)]

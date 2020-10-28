@@ -2,10 +2,9 @@ use actix::prelude::*;
 use sqlx::PgPool;
 use uuid::Uuid;
 
+use crate::domain::{CreateStoredFsNode, FsNodeMetadata, FsNodeType, StoredFsNode};
 use crate::errors::ApiError;
-use crate::repositories::{
-    CreateStoredFsNode, FsNodeMetadata, FsNodeStore, FsNodeType, StoredFsNode,
-};
+use crate::repositories::FsNodeStore;
 use crate::storages::{LocalStorage, Storage};
 
 #[derive(Debug)]

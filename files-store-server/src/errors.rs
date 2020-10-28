@@ -1,8 +1,7 @@
 use actix_web::{http, HttpResponse, ResponseError};
 use serde_json::json;
+use std::borrow::Cow;
 use thiserror::Error;
-
-use crate::repositories::RepositoryError;
 
 #[allow(dead_code)]
 #[derive(Debug, Error)]
@@ -21,8 +20,6 @@ pub enum ApiError {
     Sqlx(#[from] sqlx::Error),
     #[error("serde_json")]
     SerdeJson(#[from] serde_json::Error),
-    #[error("repository")]
-    Repository(#[from] RepositoryError),
     #[error("jobs")]
     Jobs(#[from] actix::MailboxError),
     #[error("blocking_error")]
@@ -39,18 +36,19 @@ impl ResponseError for ApiError {
         match self {
             Self::Invalid { message } => HttpResponse::build(http::StatusCode::BAD_REQUEST)
                 .json(json!({ "message": message })),
-            Self::Duplicate | Self::Repository(RepositoryError::Duplicate) => {
-                HttpResponse::build(http::StatusCode::BAD_REQUEST)
-                    .json(json!({ "message": "already.exists" }))
-            }
-            Self::NotFound | Self::Repository(RepositoryError::NotFound) => {
+            Self::Duplicate => HttpResponse::build(http::StatusCode::BAD_REQUEST)
+                .json(json!({ "message": "already.exists" })),
+            Self::NotFound | Self::Sqlx(sqlx::Error::RowNotFound) => {
                 HttpResponse::build(http::StatusCode::NOT_FOUND)
                     .json(json!({ "message": "not.found" }))
+            }
+            Self::Sqlx(sqlx::Error::Database(e)) if e.code() == Some(Cow::from("23505")) => {
+                HttpResponse::build(http::StatusCode::BAD_REQUEST)
+                    .json(json!({ "message": "already.exists" }))
             }
             Self::InternalServer
             | Self::IO(_)
             | Self::Sqlx(_)
-            | Self::Repository(_)
             | Self::Jobs(_)
             | Self::BlockingError(_)
             | Self::ImageError(_)

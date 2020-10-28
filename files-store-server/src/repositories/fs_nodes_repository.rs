@@ -1,92 +1,10 @@
 use async_trait::async_trait;
 use chrono::NaiveDateTime;
-use sqlx::{query, query_as, types::Json, Done, PgConnection};
+use sqlx::{query, query_as, types::Json, Done, Error, PgConnection};
 use uuid::Uuid;
 
-use crate::auth::User;
-use crate::repositories::{CreateStoredFsNode, FsNodeType, RepositoryError, StoredFsNode};
-
-#[async_trait]
-pub trait FsNodeStore {
-    async fn insert(
-        &mut self,
-        create_stored_fs_node: CreateStoredFsNode,
-        user_uuid: &Uuid,
-    ) -> Result<StoredFsNode, RepositoryError>;
-
-    async fn find_fs_node_by_name(
-        &mut self,
-        parent_id: i64,
-        name: &str,
-        user: &User,
-    ) -> Result<Option<StoredFsNode>, RepositoryError>;
-
-    async fn find_fs_node_thumbnail_by_uuid(
-        &mut self,
-        parent_id: i64,
-        user_uuid: &Uuid,
-    ) -> Result<Option<StoredFsNode>, RepositoryError>;
-
-    async fn find_root_fs_node(
-        &mut self,
-        fs_node_type: &FsNodeType,
-        user_uuid: &Uuid,
-    ) -> Result<StoredFsNode, RepositoryError>;
-
-    async fn find_fs_node_by_uuid(
-        &mut self,
-        uuid: &Uuid,
-        fs_node_type: &FsNodeType,
-        user_uuid: &Uuid,
-    ) -> Result<StoredFsNode, RepositoryError>;
-
-    async fn find_any_fs_node_by_uuid(
-        &mut self,
-        uuid: &Uuid,
-        user: &User,
-    ) -> Result<StoredFsNode, RepositoryError>;
-
-    async fn find_fs_nodes_by_parent_id(
-        &mut self,
-        parent_id: i64,
-        user: &User,
-    ) -> Result<Vec<StoredFsNode>, RepositoryError>;
-
-    async fn find_fs_nodes_ancestor_by_id(
-        &mut self,
-        id: i64,
-        user: &User,
-    ) -> Result<Vec<StoredFsNode>, RepositoryError>;
-
-    async fn update_deleted_at_fs_node(
-        &mut self,
-        id: i64,
-        user: &User,
-    ) -> Result<u64, RepositoryError>;
-
-    async fn delete_fs_node(&mut self, id: i64) -> Result<u64, RepositoryError>;
-
-    async fn move_fs_node_update_parent_id(
-        &mut self,
-        src: i64,
-        dest: i64,
-    ) -> Result<u64, RepositoryError>;
-
-    async fn move_fs_node_disconnect(&mut self, src: i64) -> Result<u64, RepositoryError>;
-
-    async fn move_fs_node_update_ancestors(
-        &mut self,
-        src: i64,
-        dest: i64,
-    ) -> Result<u64, RepositoryError>;
-
-    async fn find_deleted_fs_nodes(
-        &mut self,
-        date: &NaiveDateTime,
-        node_type: &FsNodeType,
-        user_uuid: &Uuid,
-    ) -> Result<Vec<StoredFsNode>, RepositoryError>;
-}
+use crate::domain::{CreateStoredFsNode, FsNodeType, StoredFsNode};
+use crate::repositories::FsNodeStore;
 
 #[async_trait]
 impl FsNodeStore for PgConnection {
@@ -94,7 +12,7 @@ impl FsNodeStore for PgConnection {
         &mut self,
         create_stored_fs_node: CreateStoredFsNode,
         user_uuid: &Uuid,
-    ) -> Result<StoredFsNode, RepositoryError> {
+    ) -> Result<StoredFsNode, Error> {
         let stored_fs_node = query_as(
             r#"
             INSERT INTO fs_nodes (
@@ -123,7 +41,7 @@ impl FsNodeStore for PgConnection {
         &mut self,
         fs_node_type: &FsNodeType,
         user_uuid: &Uuid,
-    ) -> Result<StoredFsNode, RepositoryError> {
+    ) -> Result<StoredFsNode, Error> {
         let stored_fs_node = query_as(
             r#"
             SELECT fs_nodes.*
@@ -145,7 +63,7 @@ impl FsNodeStore for PgConnection {
         uuid: &Uuid,
         fs_node_type: &FsNodeType,
         user_uuid: &Uuid,
-    ) -> Result<StoredFsNode, RepositoryError> {
+    ) -> Result<StoredFsNode, Error> {
         let stored_fs_node = query_as(
             r#"
             SELECT fs_nodes.*
@@ -165,8 +83,8 @@ impl FsNodeStore for PgConnection {
     async fn find_any_fs_node_by_uuid(
         &mut self,
         uuid: &Uuid,
-        user: &User,
-    ) -> Result<StoredFsNode, RepositoryError> {
+        user_uuid: &Uuid,
+    ) -> Result<StoredFsNode, Error> {
         let stored_fs_node = query_as(
             r#"
             SELECT fs_nodes.*
@@ -176,7 +94,7 @@ impl FsNodeStore for PgConnection {
         "#,
         )
         .bind(uuid)
-        .bind(user.uuid)
+        .bind(user_uuid)
         .fetch_one(self)
         .await?;
         Ok(stored_fs_node)
@@ -185,8 +103,8 @@ impl FsNodeStore for PgConnection {
     async fn find_fs_nodes_by_parent_id(
         &mut self,
         parent_id: i64,
-        user: &User,
-    ) -> Result<Vec<StoredFsNode>, RepositoryError> {
+        user_uuid: &Uuid,
+    ) -> Result<Vec<StoredFsNode>, Error> {
         let fs_nodes = query_as(
             r#"
             SELECT d.*
@@ -203,7 +121,7 @@ impl FsNodeStore for PgConnection {
             "#,
         )
         .bind(parent_id)
-        .bind(user.uuid)
+        .bind(user_uuid)
         .fetch_all(self)
         .await?;
         Ok(fs_nodes)
@@ -212,8 +130,8 @@ impl FsNodeStore for PgConnection {
     async fn find_fs_nodes_ancestor_by_id(
         &mut self,
         id: i64,
-        user: &User,
-    ) -> Result<Vec<StoredFsNode>, RepositoryError> {
+        user_uuid: &Uuid,
+    ) -> Result<Vec<StoredFsNode>, Error> {
         let fs_nodes = query_as(
             r#"
             SELECT fs_nodes.*
@@ -225,7 +143,7 @@ impl FsNodeStore for PgConnection {
             "#,
         )
         .bind(id)
-        .bind(user.uuid)
+        .bind(user_uuid)
         .fetch_all(self)
         .await?;
         Ok(fs_nodes)
@@ -235,8 +153,8 @@ impl FsNodeStore for PgConnection {
         &mut self,
         parent_id: i64,
         name: &str,
-        user: &User,
-    ) -> Result<Option<StoredFsNode>, RepositoryError> {
+        user_uuid: &Uuid,
+    ) -> Result<Option<StoredFsNode>, Error> {
         let fs_node = query_as(
             r#"
             SELECT d.*
@@ -254,7 +172,7 @@ impl FsNodeStore for PgConnection {
         )
         .bind(parent_id)
         .bind(name)
-        .bind(user.uuid)
+        .bind(user_uuid)
         .fetch_optional(self)
         .await?;
         Ok(fs_node)
@@ -264,7 +182,7 @@ impl FsNodeStore for PgConnection {
         &mut self,
         parent_id: i64,
         user_uuid: &Uuid,
-    ) -> Result<Option<StoredFsNode>, RepositoryError> {
+    ) -> Result<Option<StoredFsNode>, Error> {
         let fs_node = query_as(
             r#"
             SELECT d.*
@@ -287,11 +205,7 @@ impl FsNodeStore for PgConnection {
         Ok(fs_node)
     }
 
-    async fn update_deleted_at_fs_node(
-        &mut self,
-        id: i64,
-        user: &User,
-    ) -> Result<u64, RepositoryError> {
+    async fn update_deleted_at_fs_node(&mut self, id: i64, user_uuid: &Uuid) -> Result<u64, Error> {
         let updated = query(
             r#"
             UPDATE fs_nodes AS d
@@ -305,13 +219,13 @@ impl FsNodeStore for PgConnection {
         "#,
         )
         .bind(id)
-        .bind(user.uuid)
+        .bind(user_uuid)
         .execute(self)
         .await?;
         Ok(updated.rows_affected())
     }
 
-    async fn delete_fs_node(&mut self, id: i64) -> Result<u64, RepositoryError> {
+    async fn delete_fs_node(&mut self, id: i64) -> Result<u64, Error> {
         let deleted = query(
             r#"
             DELETE FROM fs_nodes_tree_paths
@@ -328,11 +242,7 @@ impl FsNodeStore for PgConnection {
         Ok(deleted.rows_affected())
     }
 
-    async fn move_fs_node_update_parent_id(
-        &mut self,
-        src: i64,
-        dest: i64,
-    ) -> Result<u64, RepositoryError> {
+    async fn move_fs_node_update_parent_id(&mut self, src: i64, dest: i64) -> Result<u64, Error> {
         let updated = query(
             r#"
             UPDATE fs_nodes SET parent_id = $2 WHERE id = $1
@@ -345,7 +255,7 @@ impl FsNodeStore for PgConnection {
         Ok(updated.rows_affected())
     }
 
-    async fn move_fs_node_disconnect(&mut self, src: i64) -> Result<u64, RepositoryError> {
+    async fn move_fs_node_disconnect(&mut self, src: i64) -> Result<u64, Error> {
         let updated = query(
             r#"
             DELETE FROM fs_nodes_tree_paths
@@ -368,11 +278,7 @@ impl FsNodeStore for PgConnection {
         Ok(updated.rows_affected())
     }
 
-    async fn move_fs_node_update_ancestors(
-        &mut self,
-        src: i64,
-        dest: i64,
-    ) -> Result<u64, RepositoryError> {
+    async fn move_fs_node_update_ancestors(&mut self, src: i64, dest: i64) -> Result<u64, Error> {
         let updated = query(
             r#"
             INSERT INTO fs_nodes_tree_paths (ancestor_id, descendant_id, depth)
@@ -395,7 +301,7 @@ impl FsNodeStore for PgConnection {
         date: &NaiveDateTime,
         node_type: &FsNodeType,
         user_uuid: &Uuid,
-    ) -> Result<Vec<StoredFsNode>, RepositoryError> {
+    ) -> Result<Vec<StoredFsNode>, Error> {
         let stored_fs_node = query_as(
             r#"
             SELECT *

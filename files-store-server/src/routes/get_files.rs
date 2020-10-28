@@ -7,8 +7,9 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::auth::User;
+use crate::domain::{FsNodeType, FsNodesRespose};
 use crate::errors::ApiError;
-use crate::repositories::{FsNodeStore, FsNodeType, FsNodesRespose};
+use crate::repositories::FsNodeStore;
 
 #[derive(Debug, Deserialize)]
 pub struct FsNodesQuery {
@@ -26,10 +27,10 @@ async fn get_files(
         .find_fs_node_by_uuid(&parent_uuid, &FsNodeType::Directory, &user.uuid)
         .await?;
     let ancestors = connection
-        .find_fs_nodes_ancestor_by_id(parent_directory.id, &user)
+        .find_fs_nodes_ancestor_by_id(parent_directory.id, &user.uuid)
         .await?;
     let fs_nodes = connection
-        .find_fs_nodes_by_parent_id(parent_directory.id, &user)
+        .find_fs_nodes_by_parent_id(parent_directory.id, &user.uuid)
         .await?;
     let response = FsNodesRespose::new(parent_directory, fs_nodes, ancestors);
     Ok(HttpResponse::Ok().json(response))
@@ -47,7 +48,7 @@ async fn get_root_files(
         .find_root_fs_node(fs_node_type, &user.uuid)
         .await?;
     let fs_nodes = connection
-        .find_fs_nodes_by_parent_id(parent_directory.id, &user)
+        .find_fs_nodes_by_parent_id(parent_directory.id, &user.uuid)
         .await?;
     let ancestors = vec![parent_directory.clone()];
     let response = FsNodesRespose::new(parent_directory, fs_nodes, ancestors);

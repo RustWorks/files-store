@@ -9,8 +9,9 @@ use tracing::debug;
 use uuid::Uuid;
 
 use crate::auth::User;
+use crate::domain::FsNodeType;
 use crate::errors::ApiError;
-use crate::repositories::{FsNodeStore, FsNodeType};
+use crate::repositories::FsNodeStore;
 
 fn can_move(source_fs_node_type: &FsNodeType, destination_fs_node_type: &FsNodeType) -> bool {
     match (source_fs_node_type, destination_fs_node_type) {
@@ -37,11 +38,11 @@ async fn move_fs_node_route(
     let mut connection = pool.begin().await?;
 
     let source_fs_node = connection
-        .find_any_fs_node_by_uuid(&query.source_uuid, &user)
+        .find_any_fs_node_by_uuid(&query.source_uuid, &user.uuid)
         .await?;
 
     let destination_fs_node = connection
-        .find_any_fs_node_by_uuid(&query.destination_uuid, &user)
+        .find_any_fs_node_by_uuid(&query.destination_uuid, &user.uuid)
         .await?;
 
     debug!(

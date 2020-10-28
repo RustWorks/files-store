@@ -7,8 +7,9 @@ use tracing::debug;
 use uuid::Uuid;
 
 use crate::auth::User;
+use crate::domain::FsNodeType;
 use crate::errors::ApiError;
-use crate::repositories::{FsNodeStore, FsNodeType};
+use crate::repositories::FsNodeStore;
 
 #[delete("/api/files/{uuid}")]
 async fn move_fs_node_to_bin_route(
@@ -18,7 +19,9 @@ async fn move_fs_node_to_bin_route(
 ) -> Result<HttpResponse, ApiError> {
     let mut connection = pool.begin().await?;
 
-    let source_fs_node = connection.find_any_fs_node_by_uuid(&uuid, &user).await?;
+    let source_fs_node = connection
+        .find_any_fs_node_by_uuid(&uuid, &user.uuid)
+        .await?;
 
     let bin = connection
         .find_root_fs_node(&FsNodeType::Bin, &user.uuid)
@@ -40,7 +43,7 @@ async fn move_fs_node_to_bin_route(
             .move_fs_node_update_ancestors(source_fs_node.id, bin.id)
             .await?;
         connection
-            .update_deleted_at_fs_node(source_fs_node.id, &user)
+            .update_deleted_at_fs_node(source_fs_node.id, &user.uuid)
             .await?;
 
         connection.commit().await?;

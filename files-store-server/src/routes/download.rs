@@ -7,8 +7,9 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::auth::User;
+use crate::domain::FsNodeType;
 use crate::errors::ApiError;
-use crate::repositories::{FsNodeStore, FsNodeType};
+use crate::repositories::FsNodeStore;
 use crate::storages::{LocalStorage, Storage};
 
 #[get("/api/files/download/{file_uuid}")]

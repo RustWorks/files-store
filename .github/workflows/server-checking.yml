@@ -33,11 +33,11 @@ jobs:
           ${{ runner.OS }}-cargo-
           ${{ runner.OS }}-
       
-    - name: Check with cargo clippy
-      run: cargo clippy -- -D warnings
     - name: Check format
       run: cargo fmt --all -- --check
     - name: Cargo check
       run: cargo check
+    - name: Check with cargo clippy
+      run: cargo clippy -- -D warnings
     - name: Run tests
       run: cargo test

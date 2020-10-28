@@ -9,6 +9,7 @@ use tracing::info;
 
 mod auth;
 mod config;
+mod domain;
 mod errors;
 mod jobs;
 mod repositories;
