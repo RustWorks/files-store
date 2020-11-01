@@ -3,6 +3,7 @@ extern crate diesel;
 extern crate diesel_migrations;
 
 use actix_cors::Cors;
+use actix_files::Files;
 use actix_web::{middleware, rt, App, HttpServer};
 use dotenv::dotenv;
 use tracing::info;
@@ -27,10 +28,11 @@ embed_migrations!("./migrations");
 async fn create_server() -> Result<(), std::io::Error> {
     let config = Config::new().expect("Config Error");
     let address = config.address();
+    let assets = config.assets();
 
     info!(
-        "Server at http://{} with local_storage_path={}",
-        &address, &config.local_storage_path
+        "Server at http://{} with local_storage_path={} and assets={}",
+        &address, &config.local_storage_path, assets
     );
 
     let database_url = config.database_url.clone();
@@ -77,6 +79,7 @@ async fn create_server() -> Result<(), std::io::Error> {
             .service(routes::move_fs_node::move_fs_node_route)
             .service(routes::move_fs_node_to_bin::move_fs_node_to_bin_route)
             .service(routes::download::download)
+            .service(Files::new("/", &assets).index_file("index.html"))
     })
     .bind(&address)?
     .run()

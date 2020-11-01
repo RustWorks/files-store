@@ -17,8 +17,17 @@ jobs:
           command: build
           args: --release
 
+      - name: Build client with node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+      - name: Build client
+        working-directory: ./files-store-web
+        run: |
+          npm ci
+          npm run build
+
       - name: Prepare docker
         run: |
+          cp -r files-store-web/public infra/docker/assets
           cp target/release/files-store-server infra/docker/files-store-server
 
       - name: Set up Docker Buildx
@@ -34,7 +43,7 @@ jobs:
         id: prepare
         uses: Surgo/docker-smart-tag-action@v1
         with:
-          docker_image: wadjetz/files-store
+          docker_image: wadjetz/files-store-server
 
       - name: Push server docker to Docker Hub
         uses: docker/build-push-action@v2
@@ -44,4 +53,4 @@ jobs:
           file: ./infra/docker/Dockerfile
           tags: |
             ${{ steps.prepare.outputs.tag }}
-            wadjetz/files-store:latest
+            wadjetz/files-store-server:latest
