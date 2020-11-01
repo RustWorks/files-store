@@ -9,6 +9,7 @@
 
   let selected: boolean = false
   let href = fsNode.node_type === "directory" ? `#/directory/${fsNode.uuid}` : Api.fsNodes.getDownloadUri(fsNode.uuid)
+  let imgError = false
 
   selectedFsNode.subscribe(nodes => {
     selected = !!nodes.find(n => n.uuid === fsNode.uuid)
@@ -19,8 +20,13 @@
   <div class="icon" class:selected on:click="{() => selectedFsNode.toggle(fsNode)}">
     {#if fsNode.node_type === 'directory'}
       <DirectoryIcon size="{30}" />
-    {:else if fsNode.node_type === 'file' && fsNode.metadata.type === 'File' && (fsNode.metadata.content_type === 'image/jpeg' || fsNode.metadata.content_type === 'image/png')}
-      <img class="thumbnail" src="{Api.fsNodes.getThumbnailUri(fsNode.uuid)}" alt="thumbnail" />
+    {:else if fsNode.node_type === 'file' && !imgError && fsNode.metadata.type === 'File' && (fsNode.metadata.content_type === 'image/jpeg' || fsNode.metadata.content_type === 'image/png')}
+      <img
+        on:error="{() => (imgError = true)}"
+        class="thumbnail"
+        src="{Api.fsNodes.getThumbnailUri(fsNode.uuid)}"
+        alt="thumbnail"
+      />
     {:else}
       <FileIcon size="{30}" />
     {/if}
