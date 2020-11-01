@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'files-store-server/**'
+      - 'users/**'
       - 'Cargo.*'
 
 env:

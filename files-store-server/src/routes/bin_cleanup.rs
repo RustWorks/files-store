@@ -2,8 +2,8 @@ use actix_web::{
     delete,
     web::{Data, HttpResponse},
 };
+use users::domain::User;
 
-use crate::auth::User;
 use crate::errors::ApiError;
 use crate::jobs::bin_cleaner_job::{BinCleanerActorAddr, Cleanup};
 

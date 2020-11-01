@@ -3,12 +3,12 @@ use chrono::NaiveDateTime;
 use sqlx::{query, query_as, types::Json, Done, Error, PgConnection};
 use uuid::Uuid;
 
-use crate::domain::{CreateStoredFsNode, FsNodeType, StoredFsNode};
+use crate::domain::{CreateStoredFsNode, FsNodeMetadata, FsNodeType, StoredFsNode};
 use crate::repositories::FsNodeStore;
 
 #[async_trait]
 impl FsNodeStore for PgConnection {
-    async fn insert(
+    async fn insert_fs_node(
         &mut self,
         create_stored_fs_node: CreateStoredFsNode,
         user_uuid: &Uuid,
@@ -31,6 +31,33 @@ impl FsNodeStore for PgConnection {
         .bind(create_stored_fs_node.parent_id)
         .bind(&create_stored_fs_node.name)
         .bind(Json(create_stored_fs_node.metadata))
+        .bind(user_uuid)
+        .fetch_one(self)
+        .await?;
+        Ok(stored_fs_node)
+    }
+
+    async fn insert_root_fs_node(
+        &mut self,
+        fs_node_type: &FsNodeType,
+        name: &str,
+        metadata: &FsNodeMetadata,
+        user_uuid: &Uuid,
+    ) -> Result<StoredFsNode, Error> {
+        let stored_fs_node = query_as(
+            r#"
+            INSERT INTO fs_nodes (
+                node_type,
+                name,
+                metadata,
+                user_uuid
+            )
+            VALUES ($1, $2, $3, $4) RETURNING *
+            "#,
+        )
+        .bind(fs_node_type.to_string())
+        .bind(name)
+        .bind(Json(metadata))
         .bind(user_uuid)
         .fetch_one(self)
         .await?;

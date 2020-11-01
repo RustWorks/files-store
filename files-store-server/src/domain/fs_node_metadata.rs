@@ -9,6 +9,7 @@ pub enum FsNodeMetadata {
         size: i64,
     },
     Directory,
+    Root,
     Bin,
     Thumbnail {
         content_type: String,

@@ -6,8 +6,8 @@ use actix_cors::Cors;
 use actix_web::{middleware, rt, App, HttpServer};
 use dotenv::dotenv;
 use tracing::info;
+use users::AuthConfig;
 
-mod auth;
 mod config;
 mod domain;
 mod errors;
@@ -15,6 +15,7 @@ mod jobs;
 mod repositories;
 mod routes;
 mod storages;
+mod users_routes;
 
 use crate::config::Config;
 use crate::jobs::bin_cleaner_job::BinCleanerActor;
@@ -61,10 +62,12 @@ async fn create_server() -> Result<(), std::io::Error> {
             .data(local_storage.clone())
             .data(thumbnail_actor.clone())
             .data(bin_cleaner_actor.clone())
+            .data(AuthConfig::new(config.secret_key.clone()))
             .wrap(middleware::DefaultHeaders::new().header("X-Version", "0.1.0"))
             .wrap(middleware::Compress::default())
             .wrap(middleware::Logger::default())
             .wrap(Cors::permissive())
+            .configure(users_routes::init)
             .service(routes::bin_cleanup::bin_cleanup_route)
             .service(routes::upload::upload)
             .service(routes::create_directory::create_directory)

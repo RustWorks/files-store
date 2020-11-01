@@ -3,7 +3,7 @@
 
   import type { FsNode } from "../FsNode"
   import { wantMoveFsNode, fsNodesStore } from "../stores/store"
-  import { getFiles, moveFsNode } from "../FileStoreApi"
+  import { Api } from "../services/Api"
   import DirectoryIcon from "../icons/DirectoryIcon.svelte"
   import Button from "./Button.svelte"
   import NavigatorBreadcrumb from "./NavigatorBreadcrumb.svelte"
@@ -15,14 +15,15 @@
   let target: FsNode = parent
   let loading = false
 
-  $: filesResponse = getFiles(target.uuid)
+  $: filesResponse = Api.fsNodes.getFiles(target.uuid)
 
   $: handleMove = () => {
     if (parent.uuid === target.uuid) {
       wantMoveFsNode.set(undefined)
     } else {
       loading = true
-      moveFsNode(fsNode.uuid, target.uuid)
+      Api.fsNodes
+        .moveFsNode(fsNode.uuid, target.uuid)
         .then(() => {
           loading = false
           fsNodesStore.move(fsNode, target)

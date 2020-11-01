@@ -1,0 +1,32 @@
+[package]
+name = "users"
+version = "1.0.0"
+authors = ["Egor Berezovskiy <egor@berezify.fr>"]
+edition = "2018"
+
+[lib]
+name = "users"
+path = "src/lib.rs"
+
+[dependencies]
+# Data types
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "0.8", features = ["serde", "v4"] }
+# Serialisation
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_urlencoded = "0.7"
+# Tools
+async-trait = "0.1"
+futures = "0.3"
+derive-new = "0.5"
+thiserror = "1.0"
+validator = { version = "0.11", features = ["derive"] }
+log = "0.4"
+# Database
+sqlx = { version = "0.4.0-beta.1", default-features = false, features = ["runtime-tokio", "postgres", "macros", "uuid", "chrono", "json"] }
+# Crypto
+bcrypt = "0.9"
+jsonwebtoken = "7.2"
+# Web
+actix-web = "3.2"

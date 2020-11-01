@@ -9,9 +9,9 @@ use serde::Serialize;
 use serde_json::Value;
 use sqlx::PgPool;
 use tracing::debug;
+use users::domain::User;
 use uuid::Uuid;
 
-use crate::auth::User;
 use crate::domain::{CreateStoredFsNode, FsNode, FsNodeMetadata, FsNodeType};
 use crate::errors::ApiError;
 use crate::jobs::thumbnail_job::{CreateThumbnail, ThumbnailActorAddr};
@@ -95,7 +95,7 @@ async fn upload(
                 filename,
                 file_fs_node_metadata,
             );
-            let stored_fs_node = tx.insert(create_stored_fs_node, &user.uuid).await?;
+            let stored_fs_node = tx.insert_fs_node(create_stored_fs_node, &user.uuid).await?;
             let fs_node: FsNode = stored_fs_node.into();
             if (&content_type == "image/jpeg") || (&content_type == "image/png") {
                 let _ = thumbnail_job

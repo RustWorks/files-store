@@ -4,9 +4,9 @@ use actix_web::{
 };
 use serde::Deserialize;
 use sqlx::PgPool;
+use users::domain::User;
 use uuid::Uuid;
 
-use crate::auth::User;
 use crate::domain::{FsNodeType, FsNodesRespose};
 use crate::errors::ApiError;
 use crate::repositories::FsNodeStore;

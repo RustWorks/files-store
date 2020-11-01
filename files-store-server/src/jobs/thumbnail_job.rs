@@ -93,7 +93,7 @@ async fn handle(
     let _ = actix_web::web::block(move || image.write_to(&mut file, format.unwrap())).await?;
 
     let stored_fs_node = connection
-        .insert(create_stored_fs_node, &fs_node.user_uuid)
+        .insert_fs_node(create_stored_fs_node, &fs_node.user_uuid)
         .await?;
 
     let _ = connection.commit().await?;

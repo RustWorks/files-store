@@ -2,7 +2,7 @@
   import { _ } from "svelte-intl"
   import { route } from "@bjornlu/svelte-router"
 
-  import { getFiles } from "../FileStoreApi"
+  import { Api } from "../services/Api"
   import { fsNodesStore, wantCreateDirectory, selectedFsNode, wantMoveFsNode } from "../stores/store"
   import Header from "../components/Header.svelte"
   import FsNodes from "../components/FsNodes.svelte"
@@ -15,7 +15,7 @@
   import Modal from "../components/Modal.svelte"
   import MoveFsNodeModal from "../components/MoveFsNodeModal.svelte"
 
-  $: filesResponse = getFiles($route.params.id).then(response => {
+  $: filesResponse = Api.fsNodes.getFiles($route.params.id).then(response => {
     fsNodesStore.set(response.childrens)
     return response
   })

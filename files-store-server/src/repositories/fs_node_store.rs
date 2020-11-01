@@ -3,13 +3,21 @@ use chrono::NaiveDateTime;
 use sqlx::Error;
 use uuid::Uuid;
 
-use crate::domain::{CreateStoredFsNode, FsNodeType, StoredFsNode};
+use crate::domain::{CreateStoredFsNode, FsNodeMetadata, FsNodeType, StoredFsNode};
 
 #[async_trait]
 pub trait FsNodeStore {
-    async fn insert(
+    async fn insert_fs_node(
         &mut self,
         create_stored_fs_node: CreateStoredFsNode,
+        user_uuid: &Uuid,
+    ) -> Result<StoredFsNode, Error>;
+
+    async fn insert_root_fs_node(
+        &mut self,
+        fs_node_type: &FsNodeType,
+        name: &str,
+        metadata: &FsNodeMetadata,
         user_uuid: &Uuid,
     ) -> Result<StoredFsNode, Error>;
 

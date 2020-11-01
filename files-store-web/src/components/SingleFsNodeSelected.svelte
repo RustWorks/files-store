@@ -4,7 +4,7 @@
 
   import type { FsNode } from "../FsNode"
   import { wantMoveFsNode, fsNodesStore } from "../stores/store"
-  import { getThumbnailUri, deleteFsNode } from "../FileStoreApi"
+  import { Api } from "../services/Api"
   import Button from "./Button.svelte"
 
   export let fsNode: FsNode
@@ -14,7 +14,8 @@
 
   $: handleDeleteFsNode = () => {
     loading = true
-    deleteFsNode(fsNode.uuid)
+    Api.fsNodes
+      .deleteFsNode(fsNode.uuid)
       .then(() => {
         loading = false
         fsNodesStore.remove(fsNode)
@@ -28,7 +29,7 @@
 <div class="single-fs-node-selected">
   <div class="name">{fsNode.name}</div>
   {#if fsNode.node_type === 'file' && fsNode.metadata.type === 'File' && (fsNode.metadata.content_type === 'image/jpeg' || fsNode.metadata.content_type === 'image/png')}
-    <div class="thumbnail"><img src="{getThumbnailUri(fsNode.uuid)}" alt="thumbnail" /></div>
+    <div class="thumbnail"><img src="{Api.fsNodes.getThumbnailUri(fsNode.uuid)}" alt="thumbnail" /></div>
   {/if}
   <div class="uuid">Uuid: {fsNode.uuid}</div>
   <div class="created-at">Created at: {format(new Date(fsNode.created_at), 'dd/MM/yyyy')}</div>

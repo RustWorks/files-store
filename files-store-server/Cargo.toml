@@ -5,12 +5,15 @@ authors = ["Wadjetz <egor@berezify.fr>"]
 edition = "2018"
 
 [dependencies]
+users = { path = "../users" }
 # Data types
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "0.8", features = ["serde", "v4"] }
 futures = "0.3"
 mime = "0.3"
 bytes = "0.6"
+strum = { version = "0.19", features = ["derive"] }
+validator = { version = "0.11", features = ["derive"] }
 
 # Serialisation
 serde = { version = "1.0", features = ["derive"] }
@@ -25,11 +28,10 @@ async-std = "1.6"
 sanitize-filename = "0.3"
 itertools = "0.9"
 image = "0.23"
-strum = { version = "0.19", features = ["derive"] }
 
 # Web
 actix = "0.10"
-actix-web = "3.1"
+actix-web = "3.2"
 actix-multipart = "0.3"
 actix-files = "0.4"
 actix-cors = "0.5"

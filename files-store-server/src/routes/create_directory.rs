@@ -4,9 +4,9 @@ use actix_web::{
 };
 use serde::Deserialize;
 use sqlx::PgPool;
+use users::domain::User;
 use uuid::Uuid;
 
-use crate::auth::User;
 use crate::domain::{CreateStoredFsNode, FsNode, FsNodeMetadata, FsNodeType};
 use crate::errors::ApiError;
 use crate::repositories::FsNodeStore;
@@ -41,7 +41,10 @@ async fn create_directory(
         name,
         FsNodeMetadata::Directory,
     );
-    let directory: FsNode = tx.insert(create_stored_fs_node, &user.uuid).await?.into();
+    let directory: FsNode = tx
+        .insert_fs_node(create_stored_fs_node, &user.uuid)
+        .await?
+        .into();
     tx.commit().await?;
     Ok(HttpResponse::Ok().json(directory))
 }

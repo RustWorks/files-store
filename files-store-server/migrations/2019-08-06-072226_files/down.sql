@@ -10,3 +10,4 @@ DROP FUNCTION IF EXISTS after_change_fs_node();
 DROP INDEX fs_nodes_parent_id_index;
 DROP INDEX fs_nodes_uuid_index;
 DROP TABLE fs_nodes;
+DROP TABLE users;

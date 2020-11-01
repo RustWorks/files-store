@@ -1,7 +1,7 @@
 <script lang="typescript">
   import { route } from "@bjornlu/svelte-router"
 
-  import { getFiles } from "../FileStoreApi"
+  import { Api } from "../services/Api"
   import { fsNodesStore, selectedFsNode } from "../stores/store"
   import Header from "../components/Header.svelte"
   import FsNodes from "../components/FsNodes.svelte"
@@ -9,7 +9,7 @@
   import Breadcrumb from "../components/Breadcrumb.svelte"
   import Button from "../components/Button.svelte"
 
-  $: filesResponse = getFiles($route.params.id, "bin").then(response => {
+  $: filesResponse = Api.fsNodes.getFiles($route.params.id, "bin").then(response => {
     fsNodesStore.set(response.childrens)
     return response
   })

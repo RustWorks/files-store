@@ -1,6 +1,6 @@
 <script lang="typescript">
   import type { FsNode } from "../FsNode"
-  import { getDownloadUri, getThumbnailUri } from "../FileStoreApi"
+  import { Api } from "../services/Api"
   import DirectoryIcon from "../icons/DirectoryIcon.svelte"
   import FileIcon from "../icons/FileIcon.svelte"
   import { selectedFsNode } from "../stores/store"
@@ -8,7 +8,7 @@
   export let fsNode: FsNode
 
   let selected: boolean = false
-  let href = fsNode.node_type === "directory" ? `#/directory/${fsNode.uuid}` : getDownloadUri(fsNode.uuid)
+  let href = fsNode.node_type === "directory" ? `#/directory/${fsNode.uuid}` : Api.fsNodes.getDownloadUri(fsNode.uuid)
 
   selectedFsNode.subscribe(nodes => {
     selected = !!nodes.find(n => n.uuid === fsNode.uuid)
@@ -20,7 +20,7 @@
     {#if fsNode.node_type === 'directory'}
       <DirectoryIcon size="{30}" />
     {:else if fsNode.node_type === 'file' && fsNode.metadata.type === 'File' && (fsNode.metadata.content_type === 'image/jpeg' || fsNode.metadata.content_type === 'image/png')}
-      <img class="thumbnail" src="{getThumbnailUri(fsNode.uuid)}" alt="thumbnail" />
+      <img class="thumbnail" src="{Api.fsNodes.getThumbnailUri(fsNode.uuid)}" alt="thumbnail" />
     {:else}
       <FileIcon size="{30}" />
     {/if}

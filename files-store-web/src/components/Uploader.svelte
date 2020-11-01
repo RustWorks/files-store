@@ -1,6 +1,6 @@
 <script lang="typescript">
   import type { FsNode, UploadResult } from "../FsNode"
-  import { upload } from "../FileStoreApi"
+  import { Api } from "../services/Api"
   import { fsNodesStore } from "../stores/store"
 
   export let parent: FsNode
@@ -17,7 +17,8 @@
     for (var i = 0; i < files.length; i++) {
       formData.append(`file-${i}`, files[i])
     }
-    upload(parent.uuid, formData)
+    Api.fsNodes
+      .upload(parent.uuid, formData)
       .then(uploaded => {
         fsNodesStore.add(uploaded.filter(isFsNode))
       })

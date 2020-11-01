@@ -1,5 +1,5 @@
 <script lang="typescript">
-  import { createDirectory } from "../FileStoreApi"
+  import { Api } from "../services/Api"
   import { fsNodesStore, wantCreateDirectory } from "../stores/store"
   import DirectoryIcon from "../icons/DirectoryIcon.svelte"
 
@@ -8,7 +8,8 @@
 
   function handleBlur() {
     if (name !== "") {
-      createDirectory(parentUuid, name)
+      Api.fsNodes
+        .createDirectory(parentUuid, name)
         .then(directory => {
           fsNodesStore.addDirectory(directory)
           wantCreateDirectory.update(() => false)
