@@ -2,12 +2,12 @@ use actix_web::{
     delete,
     web::{Data, HttpResponse, Path},
 };
+use files_store_domain::FsNodeType;
 use sqlx::PgPool;
 use tracing::debug;
 use users::domain::User;
 use uuid::Uuid;
 
-use crate::domain::FsNodeType;
 use crate::errors::ApiError;
 use crate::repositories::FsNodeStore;
 

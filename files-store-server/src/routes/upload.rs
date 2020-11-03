@@ -4,6 +4,7 @@ use actix_web::{
     web::{Data, HttpResponse, Path},
 };
 use blake2::{Blake2s, Digest};
+use files_store_domain::{CreateFsNode, FsNode, FsNodeMetadata, FsNodeType};
 use futures::{StreamExt, TryStreamExt};
 use serde::Serialize;
 use serde_json::Value;
@@ -12,7 +13,6 @@ use tracing::debug;
 use users::domain::User;
 use uuid::Uuid;
 
-use crate::domain::{CreateStoredFsNode, FsNode, FsNodeMetadata, FsNodeType};
 use crate::errors::ApiError;
 use crate::jobs::thumbnail_job::{CreateThumbnail, ThumbnailActorAddr};
 use crate::repositories::FsNodeStore;
@@ -88,7 +88,7 @@ async fn upload(
             debug!("uploade file content_type={} path={}", &content_type, &path);
             let file_fs_node_metadata =
                 FsNodeMetadata::new_file(hash, content_type.clone(), size as i64);
-            let create_stored_fs_node = CreateStoredFsNode::new(
+            let create_stored_fs_node = CreateFsNode::new(
                 file_uuid,
                 parent_directory.id,
                 FsNodeType::File,

@@ -2,6 +2,7 @@ use actix_web::{
     put,
     web::{Data, HttpResponse, Json},
 };
+use files_store_domain::FsNodeType;
 use serde::Deserialize;
 use sqlx::PgPool;
 use std::str::FromStr;
@@ -9,7 +10,6 @@ use tracing::debug;
 use users::domain::User;
 use uuid::Uuid;
 
-use crate::domain::FsNodeType;
 use crate::errors::ApiError;
 use crate::repositories::FsNodeStore;
 

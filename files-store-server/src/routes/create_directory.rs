@@ -2,12 +2,12 @@ use actix_web::{
     post,
     web::{Data, HttpResponse, Json},
 };
+use files_store_domain::{CreateFsNode, FsNode, FsNodeMetadata, FsNodeType};
 use serde::Deserialize;
 use sqlx::PgPool;
 use users::domain::User;
 use uuid::Uuid;
 
-use crate::domain::{CreateStoredFsNode, FsNode, FsNodeMetadata, FsNodeType};
 use crate::errors::ApiError;
 use crate::repositories::FsNodeStore;
 
@@ -34,7 +34,7 @@ async fn create_directory(
     let uuid = Uuid::new_v4();
     let parent_id = parent_directory.id;
     let name = payload.name.clone();
-    let create_stored_fs_node = CreateStoredFsNode::new(
+    let create_stored_fs_node = CreateFsNode::new(
         uuid,
         parent_id,
         FsNodeType::Directory,

@@ -10,8 +10,5 @@ pub use fs_node_metadata::*;
 mod fs_nodes_respose;
 pub use fs_nodes_respose::*;
 
-mod stored_fs_node;
-pub use stored_fs_node::*;
-
 mod create_stored_fs_node;
 pub use create_stored_fs_node::*;

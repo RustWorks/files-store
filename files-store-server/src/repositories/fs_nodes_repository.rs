@@ -1,16 +1,16 @@
 use async_trait::async_trait;
 use chrono::NaiveDateTime;
+use files_store_domain::{CreateFsNode, FsNodeMetadata, FsNodeType};
 use sqlx::{query, query_as, types::Json, Done, Error, PgConnection};
 use uuid::Uuid;
 
-use crate::domain::{CreateStoredFsNode, FsNodeMetadata, FsNodeType, StoredFsNode};
-use crate::repositories::FsNodeStore;
+use crate::repositories::{FsNodeStore, StoredFsNode};
 
 #[async_trait]
 impl FsNodeStore for PgConnection {
     async fn insert_fs_node(
         &mut self,
-        create_stored_fs_node: CreateStoredFsNode,
+        create_stored_fs_node: CreateFsNode,
         user_uuid: &Uuid,
     ) -> Result<StoredFsNode, Error> {
         let stored_fs_node = query_as(

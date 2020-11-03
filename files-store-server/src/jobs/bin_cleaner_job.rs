@@ -1,9 +1,9 @@
 use actix::prelude::*;
 use chrono::prelude::*;
+use files_store_domain::FsNodeType;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::domain::FsNodeType;
 use crate::errors::ApiError;
 use crate::repositories::FsNodeStore;
 use crate::storages::{LocalStorage, Storage};

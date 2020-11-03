@@ -1,0 +1,17 @@
+[package]
+name = "files-store-sync"
+version = "0.1.0"
+authors = ["Egor <egor@berezify.fr>"]
+edition = "2018"
+
+[[bin]]
+name = "files-store-sync"
+path = "src/main.rs"
+
+[dependencies]
+files-store-domain = { path = "../files-store-domain" }
+
+thiserror = "1.0"
+async-std = "1.6"
+structopt = "0.3"
+reqwest = "0.10"

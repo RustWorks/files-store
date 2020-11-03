@@ -1,10 +1,10 @@
 use actix::prelude::*;
+use files_store_domain::{CreateFsNode, FsNodeMetadata, FsNodeType};
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::domain::{CreateStoredFsNode, FsNodeMetadata, FsNodeType, StoredFsNode};
 use crate::errors::ApiError;
-use crate::repositories::FsNodeStore;
+use crate::repositories::{FsNodeStore, StoredFsNode};
 use crate::storages::{LocalStorage, Storage};
 
 #[derive(Debug)]
@@ -76,7 +76,7 @@ async fn handle(
 
     let metadata = FsNodeMetadata::new_thumbnail(content_type, 0, 200, 200);
 
-    let create_stored_fs_node = CreateStoredFsNode::new(
+    let create_stored_fs_node = CreateFsNode::new(
         uuid::Uuid::new_v4(),
         fs_node.id,
         FsNodeType::Thumbnail,

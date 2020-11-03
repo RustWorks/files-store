@@ -1,9 +1,9 @@
 use uuid::Uuid;
 
-use crate::domain::{FsNodeMetadata, FsNodeType};
+use crate::{FsNodeMetadata, FsNodeType};
 
 #[derive(Debug)]
-pub struct CreateStoredFsNode {
+pub struct CreateFsNode {
     pub uuid: Uuid,
     pub parent_id: i64,
     pub node_type: FsNodeType,
@@ -11,7 +11,7 @@ pub struct CreateStoredFsNode {
     pub metadata: FsNodeMetadata,
 }
 
-impl CreateStoredFsNode {
+impl CreateFsNode {
     pub fn new(
         uuid: Uuid,
         parent_id: i64,

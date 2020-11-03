@@ -1,15 +1,16 @@
 use async_trait::async_trait;
 use chrono::NaiveDateTime;
+use files_store_domain::{CreateFsNode, FsNodeMetadata, FsNodeType};
 use sqlx::Error;
 use uuid::Uuid;
 
-use crate::domain::{CreateStoredFsNode, FsNodeMetadata, FsNodeType, StoredFsNode};
+use crate::repositories::StoredFsNode;
 
 #[async_trait]
 pub trait FsNodeStore {
     async fn insert_fs_node(
         &mut self,
-        create_stored_fs_node: CreateStoredFsNode,
+        create_stored_fs_node: CreateFsNode,
         user_uuid: &Uuid,
     ) -> Result<StoredFsNode, Error>;
 

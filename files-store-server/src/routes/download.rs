@@ -3,11 +3,11 @@ use actix_web::{
     get,
     web::{Data, Path},
 };
+use files_store_domain::FsNodeType;
 use sqlx::PgPool;
 use users::domain::User;
 use uuid::Uuid;
 
-use crate::domain::FsNodeType;
 use crate::errors::ApiError;
 use crate::repositories::FsNodeStore;
 use crate::storages::{LocalStorage, Storage};

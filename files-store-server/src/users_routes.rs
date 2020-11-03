@@ -2,13 +2,13 @@ use actix_web::{
     get, post, put,
     web::{Data, HttpResponse, Json, ServiceConfig},
 };
+use files_store_domain::{FsNodeMetadata, FsNodeType};
 use sqlx::PgPool;
 use users::domain::{ChangePassword, PasswordCredentials, Signup, User, UserUpdate, UsersStore};
 use users::users_service;
 use validator::Validate;
 
 use crate::config::Config;
-use crate::domain::{FsNodeMetadata, FsNodeType};
 use crate::errors::ApiError;
 use crate::repositories::FsNodeStore;
 

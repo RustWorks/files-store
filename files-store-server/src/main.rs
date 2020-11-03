@@ -10,7 +10,6 @@ use tracing::info;
 use users::AuthConfig;
 
 mod config;
-mod domain;
 mod errors;
 mod jobs;
 mod repositories;

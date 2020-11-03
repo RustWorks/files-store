@@ -3,9 +3,15 @@ name = "files-store-server"
 version = "0.1.0"
 authors = ["Wadjetz <egor@berezify.fr>"]
 edition = "2018"
+default-run = "files-store-server"
+
+[[bin]]
+name = "files-store-server"
+path = "src/main.rs"
 
 [dependencies]
 users = { path = "../users" }
+files-store-domain = { path = "../files-store-domain" }
 # Data types
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "0.8", features = ["serde", "v4"] }

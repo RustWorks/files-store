@@ -5,5 +5,7 @@ codegen-units = 1
 [workspace]
 members = [
   "files-store-server",
+  "files-store-domain",
+  "files-store-sync",
   "users"
 ]

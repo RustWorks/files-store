@@ -2,14 +2,14 @@ use actix_web::{
     get,
     web::{Data, HttpResponse, Path, Query},
 };
+use files_store_domain::FsNodeType;
 use serde::Deserialize;
 use sqlx::PgPool;
 use users::domain::User;
 use uuid::Uuid;
 
-use crate::domain::{FsNodeType, FsNodesRespose};
 use crate::errors::ApiError;
-use crate::repositories::FsNodeStore;
+use crate::repositories::{create_fs_nodes_respose, FsNodeStore};
 
 #[derive(Debug, Deserialize)]
 pub struct FsNodesQuery {
@@ -32,7 +32,7 @@ async fn get_files(
     let fs_nodes = connection
         .find_fs_nodes_by_parent_id(parent_directory.id, &user.uuid)
         .await?;
-    let response = FsNodesRespose::new(parent_directory, fs_nodes, ancestors);
+    let response = create_fs_nodes_respose(parent_directory, fs_nodes, ancestors);
     Ok(HttpResponse::Ok().json(response))
 }
 
@@ -51,6 +51,6 @@ async fn get_root_files(
         .find_fs_nodes_by_parent_id(parent_directory.id, &user.uuid)
         .await?;
     let ancestors = vec![parent_directory.clone()];
-    let response = FsNodesRespose::new(parent_directory, fs_nodes, ancestors);
+    let response = create_fs_nodes_respose(parent_directory, fs_nodes, ancestors);
     Ok(HttpResponse::Ok().json(response))
 }

@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - 'files-store-server/**'
+      - 'files-store-domain/**'
+      - 'files-store-sync/**'
       - 'users/**'
       - 'Cargo.*'
 
