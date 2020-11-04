@@ -2,8 +2,7 @@ use actix_web::{
     post,
     web::{Data, HttpResponse, Json},
 };
-use files_store_domain::{CreateFsNode, FsNode, FsNodeMetadata, FsNodeType};
-use serde::Deserialize;
+use files_store_domain::{CreateFsNode, CreateFsNodeDirectory, FsNode, FsNodeMetadata, FsNodeType};
 use sqlx::PgPool;
 use users::domain::User;
 use uuid::Uuid;
@@ -11,16 +10,10 @@ use uuid::Uuid;
 use crate::errors::ApiError;
 use crate::repositories::FsNodeStore;
 
-#[derive(Debug, Deserialize)]
-struct CreateDirectoryQuery {
-    name: String,
-    parent_uuid: Option<Uuid>,
-}
-
-#[post("/api/directories")]
+#[post("/api/fs/directories")]
 async fn create_directory(
     pool: Data<PgPool>,
-    payload: Json<CreateDirectoryQuery>,
+    payload: Json<CreateFsNodeDirectory>,
     user: User,
 ) -> Result<HttpResponse, ApiError> {
     let mut tx = pool.begin().await?;

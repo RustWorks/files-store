@@ -12,7 +12,7 @@ use crate::errors::ApiError;
 use crate::repositories::FsNodeStore;
 use crate::storages::{LocalStorage, Storage};
 
-#[get("/api/files/thumbnail/{file_uuid}")]
+#[get("/api/fs/thumbnail/{file_uuid}")]
 async fn get_thumbnail_route(
     pool: Data<PgPool>,
     local_storage: Data<LocalStorage>,

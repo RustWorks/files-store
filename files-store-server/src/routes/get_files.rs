@@ -16,7 +16,7 @@ pub struct FsNodesQuery {
     pub root_type: Option<FsNodeType>,
 }
 
-#[get("/api/files/{parent_uuid}")]
+#[get("/api/fs/{parent_uuid}")]
 async fn get_files(
     pool: Data<PgPool>,
     parent_uuid: Path<Uuid>,
@@ -36,7 +36,7 @@ async fn get_files(
     Ok(HttpResponse::Ok().json(response))
 }
 
-#[get("/api/files")]
+#[get("/api/fs")]
 async fn get_root_files(
     pool: Data<PgPool>,
     query: Query<FsNodesQuery>,

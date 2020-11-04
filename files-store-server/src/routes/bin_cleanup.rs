@@ -7,7 +7,7 @@ use users::domain::User;
 use crate::errors::ApiError;
 use crate::jobs::bin_cleaner_job::{BinCleanerActorAddr, Cleanup};
 
-#[delete("/api/files/cleanup")]
+#[delete("/api/fs/cleanup")]
 async fn bin_cleanup_route(
     bin_cleanup_job: Data<BinCleanerActorAddr>,
     user: User,

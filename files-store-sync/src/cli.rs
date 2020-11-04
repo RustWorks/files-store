@@ -11,5 +11,8 @@ pub enum Cli {
 
         #[structopt(short = "t", long = "token")]
         token: String,
+
+        #[structopt(short = "h", long = "host")]
+        host: String,
     },
 }

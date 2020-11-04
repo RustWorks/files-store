@@ -1,10 +1,10 @@
 use chrono::NaiveDateTime;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::FsNodeMetadata;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct FsNode {
     pub uuid: Uuid,
     pub node_type: String,

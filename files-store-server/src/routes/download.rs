@@ -12,7 +12,7 @@ use crate::errors::ApiError;
 use crate::repositories::FsNodeStore;
 use crate::storages::{LocalStorage, Storage};
 
-#[get("/api/files/download/{file_uuid}")]
+#[get("/api/fs/download/{file_uuid}")]
 async fn download(
     pool: Data<PgPool>,
     local_storage: Data<LocalStorage>,

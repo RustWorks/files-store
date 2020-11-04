@@ -40,7 +40,7 @@ impl UploadError {
     }
 }
 
-#[post("/api/files/upload/{parent_uuid}")]
+#[post("/api/fs/upload/{parent_uuid}")]
 async fn upload(
     mut multipart: Multipart,
     pool: Data<PgPool>,
@@ -59,15 +59,9 @@ async fn upload(
         let parent_directory = tx
             .find_fs_node_by_uuid(&parent_uuid, &FsNodeType::Directory, &user.uuid)
             .await?;
-        debug!("Upload file parent directory: {:?}", &parent_directory);
         let maybe_existing_fs_node = tx
             .find_fs_node_by_name(parent_directory.id, &filename, &user.uuid)
             .await?;
-        debug!(
-            "Find fs_node with name={} finded={:?}",
-            &filename, &parent_directory
-        );
-        dbg!(&maybe_existing_fs_node);
         if maybe_existing_fs_node.is_none() {
             let ancestors = tx
                 .find_fs_nodes_ancestor_by_id(parent_directory.id, &user.uuid)
@@ -77,6 +71,7 @@ async fn upload(
             let mut uploder = local_storage.get_uploader(&file_uuid, &user.uuid).await?;
             let mut size: usize = 0;
             let mut hasher = Blake2s::new();
+            debug!("uploade file filename={} path={}", &filename, &path);
             while let Some(chunk) = field.next().await {
                 let data = chunk.map_err(|_| ApiError::InternalServer)?;
                 size += data.len();
@@ -85,9 +80,8 @@ async fn upload(
             }
             let hash = format!("{:02x}", hasher.finalize());
             let content_type = field.content_type().to_string();
-            debug!("uploade file content_type={} path={}", &content_type, &path);
             let file_fs_node_metadata =
-                FsNodeMetadata::new_file(hash, content_type.clone(), size as i64);
+                FsNodeMetadata::new_file(&filename, hash, content_type.clone(), size as i64);
             let create_stored_fs_node = CreateFsNode::new(
                 file_uuid,
                 parent_directory.id,

@@ -29,7 +29,7 @@ struct MoveFsNodeQuery {
     destination_uuid: Uuid,
 }
 
-#[put("/api/files")]
+#[put("/api/fs")]
 async fn move_fs_node_route(
     pool: Data<PgPool>,
     query: Json<MoveFsNodeQuery>,

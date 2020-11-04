@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "type")]
 pub enum FsNodeMetadata {
     File {
+        stem: Option<String>,
+        extension: Option<String>,
         hash: String,
         content_type: String,
         size: i64,
@@ -19,9 +21,19 @@ pub enum FsNodeMetadata {
     },
 }
 
+pub fn get_filename_component(filename: &str) -> (Option<String>, Option<String>) {
+    let path = std::path::Path::new(&filename);
+    let stem = path.file_stem().map(|e| e.to_string_lossy().into_owned());
+    let extension = path.extension().map(|e| e.to_string_lossy().into_owned());
+    (stem, extension)
+}
+
 impl FsNodeMetadata {
-    pub fn new_file(hash: String, content_type: String, size: i64) -> Self {
+    pub fn new_file(filename: &str, hash: String, content_type: String, size: i64) -> Self {
+        let (stem, extension) = get_filename_component(&filename);
         Self::File {
+            extension,
+            stem,
             hash,
             content_type,
             size,

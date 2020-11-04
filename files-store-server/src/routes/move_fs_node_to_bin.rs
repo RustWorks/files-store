@@ -11,7 +11,7 @@ use uuid::Uuid;
 use crate::errors::ApiError;
 use crate::repositories::FsNodeStore;
 
-#[delete("/api/files/{uuid}")]
+#[delete("/api/fs/{uuid}")]
 async fn move_fs_node_to_bin_route(
     pool: Data<PgPool>,
     uuid: Path<Uuid>,
